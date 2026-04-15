@@ -1,0 +1,58 @@
+--- EMAIL CHAIN (Reconstructed for pattern documentation) ---
+
+INITIAL REQUEST ([Senior Technical Recruiter], Mindbank Consulting Group)
+From: recruiter@mindbankcg.com
+Subject: RE: TS/SCI Software Engineer Role
+
+Hi Candidate,
+
+Before we can submit you to the client, I need to verify your clearance status. 
+Can you please provide your Social Security Number? We need it to look you up 
+in DISS to confirm your current clearance level and eligibility.
+
+Thank you,
+[Senior Technical Recruiter]
+Mindbank Consulting Group
+Vienna, VA
+
+---
+
+CANDIDATE RESPONSE:
+Under 32 CFR §117.10(a)(7), clearance requests can only be submitted by employing
+contractors for their own employees. As a staffing intermediary, Mindbank does not
+have DISS access, and I am not your employee. Additionally, §117.10(f)(1)(i)-(ii)
+requires a written offer and written acceptance before any clearance action begins.
+I have not received a written offer from Mindbank or the client. Please have the
+client's FSO verify through DISS using my name and employer — no SSN required from me.
+
+---
+
+SVP ESCALATION ([SVP Sales & Recruiting], Mindbank Consulting Group)
+From: svp@mindbankcg.com
+Subject: RE: TS/SCI Software Engineer Role — URGENT
+
+Candidate,
+
+I am the SVP at Mindbank. I understand you have concerns about 
+providing your SSN, but this is a completely standard and common practice 
+within our industry. Our firm requires SSN as the primary identifier used in 
+DISS, and everyone else we work with has provided this information without issue.
+
+If you are not willing to cooperate with our standard process, we will not be 
+able to move forward with your candidacy. We have other candidates who are 
+happy to provide this information.
+
+Please provide your SSN or this opportunity will be closed.
+
+[SVP Sales & Recruiting]
+Mindbank Consulting Group
+
+---
+ANALYSIS NOTES:
+Violation 1: Pre-offer SSN request — 32 CFR §117.10(a)(7) (non-employee check)
+Violation 2: Cache building rationalization — 32 CFR §117.10(a)(5) ("everyone" / "standard practice")
+Violation 3: SVP pressure escalation — §117.10(a)(7) (social engineering, not correcting the violation)
+Violation 4: "Primary identifier in DISS" misrepresentation — DISS queries use name + employer
+Violation 5: "Everyone else provided" = normalization of §117.10 violation pattern across candidates
+Company: Mindbank Consulting Group, Vienna VA (real, GSA MAS-holding, woman-owned small business)
+Note: Mindbank is a legitimate staffing firm that appears to have institutionalized an unlawful process.

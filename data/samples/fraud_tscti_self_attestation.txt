@@ -1,0 +1,36 @@
+From: afsso@tscti.com
+Subject: Clearance Verification Required — Please Complete
+
+Hi Candidate,
+
+I am the Office Manager & AFSSO at 22nd Century Technologies Inc.
+
+As part of our clearance verification process, please fill in the following fields so we
+can verify your clearance status and proceed with onboarding:
+
+  Eligibility Level: _______________
+  Eligibility Determination: _______________
+  CE Date: _______________
+  Investigation Type: _______________
+
+This should suffice the clearance verification on our end.
+
+Please return this completed form at your earliest convenience.
+
+Best regards,
+[Office Manager & AFSSO]
+22nd Century Technologies, Inc. (TSCTI)
+afsso@tscti.com
+
+---
+ANALYSIS NOTES (for fraud-check tool):
+This email asks the candidate to self-report the four fields that a credentialed FSO
+already receives directly from DISS JVS upon running a Joint Verification System query.
+A legitimate FSO querying DISS JVS gets: Eligibility Level, Eligibility Determination,
+CE Date, and Investigation Type directly from DCSA's system of record.
+Asking the candidate to fill these in indicates either:
+ (a) No DISS access — cannot actually verify, OR
+ (b) Pre-offer action — §117.10(a)(7) violation
+The phrase "this should suffice the clearance" confirms self-attested data is being
+used as a substitute for an authoritative DISS JVS query.
+Applicable rules: 32 CFR §117.10(a)(7), §117.10(h), SEAD 7

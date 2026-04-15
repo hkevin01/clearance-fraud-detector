@@ -1,0 +1,31 @@
+From: Sarah Mitchell <fso@[REDACTED]-defense-group.com>
+To: [Target]
+Subject: Clearance Verification Required — URGENT
+
+Dear Candidate,
+
+I am the Facility Security Officer (FSO) at [Company]. We need to verify 
+your active Top Secret clearance before we can proceed with your application.
+
+To initiate the DISS verification, please provide the following:
+- Social Security Number
+- Date of Birth
+- Current employer name
+
+Please respond to this email directly with the information, or call me at 
+the number below. This is required before we can make an offer.
+
+Urgently needed by end of business today.
+
+Sarah Mitchell
+Facility Security Officer
+[REDACTED] Defense Group
+
+---
+FRAUD INDICATORS IN THIS MESSAGE:
+1. FSO would NEVER cold-email a candidate requesting SSN
+2. SSN goes into eApp (eapp.nbis.mil) directly — never by email to FSO
+3. "Before we can proceed with your application" = pre-offer = illegal
+4. Urgency pressure = social engineering
+5. Real DISS verification requires FSO CAC login — not candidate-provided SSN
+6. Applicable rules: 32 CFR §117.10(a)(7), §117.10(f)(1)(i)-(ii), §117.10(d)

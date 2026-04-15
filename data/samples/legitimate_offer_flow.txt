@@ -1,0 +1,62 @@
+From: talent@leidos.com
+Subject: Employment Offer — Senior Software Engineer (TS/SCI) — Chantilly, VA
+
+LEIDOS
+EMPLOYMENT OFFER LETTER
+
+April 15, 2026
+
+Alex Candidate
+123 Main Street
+Vienna, VA 22182
+
+Dear Alex,
+
+On behalf of Leidos Holdings, Inc., I am pleased to offer you the position of
+Senior Software Engineer, Cleared Programs Division, located at our Chantilly,
+Virginia facility.
+
+POSITION DETAILS
+Title:       Senior Software Engineer III (Cleared Programs)
+Location:    Chantilly, VA — on-site at SCIF (remote not available)
+Start Date:  May 1, 2026 (or mutually agreed start date)
+Compensation: $148,500 per year
+Clearance:   Active TS/SCI required; Leidos will sponsor polygraph investigation post-start
+
+BACKGROUND INVESTIGATION PROCESS
+Upon receipt of your countersigned offer letter, our Facility Security Officer (FSO)
+will send you an eApp invitation to your personal email address. You will log in to
+NBIS eApp at eapp.nbis.mil and complete your SF-86 directly in the system. Your SSN
+and personal information should ONLY be entered directly by you into the eApp portal.
+
+The FSO will review your SF-86 for completeness and submit to DCSA. You do not need
+to provide your SSN to anyone outside the eApp portal — not to HR, not to your
+recruiter, and not by email.
+
+ACCEPTANCE
+Please sign and return one copy of this letter by April 22, 2026 to confirm written
+acceptance. Your employment relationship and clearance action will begin upon receipt
+of your countersigned acceptance.
+
+Sincerely,
+[Director, Talent Acquisition — Cleared Programs]
+talent@leidos.com | Direct: (703) 555-0112
+
+Leidos Holdings, Inc.
+11951 Freedom Drive, Suite 600
+Reston, VA 20190
+CAGE Code: 1LNU8 (verify at sam.gov)
+SAM UEI: BBLJZJK8B785
+
+---
+ANALYSIS NOTES (legitimate signals present):
+- Corporate email: talent@leidos.com (not free email domain)
+- Physical address: 11951 Freedom Drive, Reston VA 20190 (verifiable on SAM.gov)
+- CAGE code provided: 1LNU8 (verify at sam.gov)
+- SAM UEI: BBLJZJK8B785 (verifiable at sam.gov)
+- Salary stated: $148,500/year (specific and reasonable)
+- Start date: May 1, 2026 (specific, not urgent)
+- Named signatory: [Director, Talent Acquisition — Cleared Programs]
+- eApp reference: explicitly directs SSN through eapp.nbis.mil only
+- Written acceptance required before clearance action (§117.10(f)(1)(i)-(ii) compliant)
+- NO SSN field on offer letter (correct — SSN goes into eApp, not offer)

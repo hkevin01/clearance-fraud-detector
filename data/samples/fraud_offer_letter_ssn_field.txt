@@ -1,0 +1,42 @@
+EMPLOYMENT OFFER LETTER
+Clearance Staffing Solutions LLC
+(No physical address listed)
+
+Dear Applicant,
+
+We are excited to offer you the position of Cleared Systems Engineer, supporting
+classified programs at an undisclosed government customer site.
+
+Compensation: $175,000/year
+Clearance Required: TS/SCI with Full Scope Polygraph
+
+To complete your onboarding and initiate clearance processing, please fill in the
+following fields and return this signed offer letter TODAY:
+
+  Full Legal Name: _______________
+  Social Security Number: _______________
+  Date of Birth: _______________
+  Mother's Maiden Name: _______________
+  Bank Account (for direct deposit): _______________
+  Bank Routing Number: _______________
+
+THIS OFFER EXPIRES IN 24 HOURS. Respond immediately.
+
+Note: Clearance processing cannot begin without your SSN. This is standard
+industry practice required by all defense contractors.
+
+Reply to: hr.clearance.jobs@gmail.com
+
+Sincerely,
+HR Department
+Clearance Staffing Solutions LLC
+
+---
+ANALYSIS NOTES:
+- SSN field on offer letter is a §117.10(d) violation
+- DOB, mother's maiden name, bank routing = full identity package for fraud
+- gmail.com sender = not a corporate domain
+- "standard industry practice" = §117.10(a)(5) misrepresentation
+- 24-hour expiry = social engineering urgency pressure
+- No physical address = cannot verify on SAM.gov
+- No CAGE code = not a registered government contractor
