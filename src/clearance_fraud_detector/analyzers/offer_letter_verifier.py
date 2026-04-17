@@ -176,6 +176,25 @@ _EAPP_REFERENCE_PATTERNS = [
 ]
 
 
+# ID: OL-001
+# Requirement: Evaluate offer letter text and optional sender email for authenticity,
+#              returning a red/yellow/green flag analysis with a legitimacy score.
+# Purpose: Detect fake offer letters used to coerce SSN submission before a real offer
+#          exists or to manufacture urgency that bypasses the NISPOM process sequence.
+# Rationale: Eleven independent checks cover the most common forgery tactics — SSN on
+#             the face of the offer, free-email domains, missing physical address, urgency
+#             language, and absence of eApp process references.
+# Inputs: text (str) — offer letter body; sender_email (str, optional) — From: address.
+# Outputs: OfferLetterAnalysis with red_flags, yellow_flags, green_flags, overall_risk str.
+# Preconditions: text is a decoded string; sender_email may be empty.
+# Postconditions: overall_risk is one of HIGH/MEDIUM/LOW/UNKNOWN based on flag counts.
+# Assumptions: legitimacy_score property applies linear formula on flag balance.
+# Side Effects: None — pure function with no I/O.
+# Failure Modes: Empty text produces only yellow "missing" flags — no exception.
+# Error Handling: sender_email guard: only split on '@' if '@' is present.
+# Constraints: O(|checks| × |text|); expected < 2 ms for typical offer letter lengths.
+# Verification: test_detector.py::test_offer_letter_* — red/green flag detection per check.
+# References: 32 CFR §117.10(f)(1)(i)-(ii), §117.10(d); NBIS eApp: eapp.nbis.mil.
 def verify_offer_letter(text: str, sender_email: str = "") -> OfferLetterAnalysis:
     """
     Analyze an offer letter for authenticity indicators.

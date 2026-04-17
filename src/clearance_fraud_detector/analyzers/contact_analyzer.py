@@ -593,6 +593,27 @@ _RECRUITER_CHECKS: list[tuple] = [
 # Main analysis function
 # ===========================================================================
 
+# ID: CA-001
+# Requirement: Classify a recruiter or FSO contact message as CLEAN, SUSPICIOUS, or
+#              confirmed FAKE, distinguishing FSO impersonation from fake recruiter fraud.
+# Purpose: Identify the most damaging clearance-community fraud vectors — fake FSOs
+#          harvesting SSNs under the guise of "clearance verification" and fake recruiters
+#          running PII/financial fraud or DPRK IT worker schemes.
+# Rationale: Separate FSO and recruiter scoring tracks allow the system to output targeted
+#             guidance (e.g., "call the FSO line" vs. "report to FBI IC3") and correctly
+#             identify MIXED cases where both vectors appear simultaneously.
+# Inputs: contact_text (str) — raw text of email, chat, or call notes; may be multi-paragraph.
+# Outputs: ContactAnalysis with risk_score ∈ [0, 1], ContactType enum, and ContactFinding list.
+# Preconditions: contact_text is a decoded string; _FSO_CHECKS and _RECRUITER_CHECKS compiled.
+# Postconditions: fso_score and recruiter_score are independently bounded via logistic formula;
+#                 contact_type correctly reflects which sub-score(s) exceed thresholds.
+# Assumptions: _LEGIT_FSO_PHRASES / _LEGIT_RECRUITER_PHRASES reduce but do not nullify scores.
+# Side Effects: None — pure function; no I/O or shared-state mutation.
+# Failure Modes: Empty text returns ContactType.CLEAN, score 0.0 — no exception.
+# Error Handling: No guards needed — all patterns handle no-match by returning None safely.
+# Constraints: O(|_FSO_CHECKS| + |_RECRUITER_CHECKS|) × |text| — typically < 3 ms.
+# Verification: test_detector.py::test_contact_* — FSO/recruiter distinction, MIXED case.
+# References: 32 CFR §117.10(a)(5), §117.10(a)(7), §117.10(f)(1)(i)-(ii), §117.10(d).
 def analyze_contact(contact_text: str) -> ContactAnalysis:
     """
     Analyze a recruiter message, FSO email, or contact transcript for

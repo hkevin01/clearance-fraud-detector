@@ -287,6 +287,29 @@ class WorkforceMappingAnalysis:
 # Main analysis function
 # ---------------------------------------------------------------------------
 
+# ID: WM-001
+# Requirement: Detect whether a recruiter message is an attempt to map the cleared workforce
+#              (CI-reportable) rather than a legitimate recruiting outreach.
+# Purpose: Flag foreign intelligence service (FIS) asset-mapping operations that disguise
+#          CI collection as recruiting activity, consistent with SEAD 3 reporting obligations.
+# Rationale: 17 independent signals covering 6 tiers (PII enumeration, network mapping,
+#             programme profiling, travel solicitation, platform evasion, and paid-report
+#             schemes) align with NCSC/DCSA adversary tradecraft documented since 2018.
+# Inputs: text (str) — recruiter message body; sender (str) — From: address; subject (str);
+#         contact_channel (str) — e.g., "linkedin", "email", "telegram".
+# Outputs: WorkforceMappingAnalysis with risk_score ∈ [0, 1], WorkforceMappingVerdict,
+#          triggered_signals list, and is_ci_reportable property.
+# Preconditions: All 17 module-level compiled patterns are populated at import time.
+# Postconditions: risk_score uses logistic formula (1 − 1/(1 + raw×0.45)) with no ceiling
+#                 except 1.0; verdict thresholds: CLEAN <0.15, COMMERCIAL <0.40, CI_RISK <0.65.
+# Assumptions: Signal 15 (paid report) guard uses _PAID_REPORT_REQUEST pattern to suppress
+#              false positives from legitimate market research invitations.
+# Side Effects: None — pure function; no I/O.
+# Failure Modes: Empty text returns CLEAN, score 0.0 — no exception.
+# Error Handling: All pattern.search() calls return None safely on no match.
+# Constraints: O(17 × |text|); expected < 5 ms on messages under 10 kB.
+# Verification: test_detector.py::TestNewCI_Patterns2025 — 22 new CI pattern tests.
+# References: NCSC "Know the Risk, Raise Your Shield" 2020; SEAD 3 (2017); 32 CFR §117.10(a)(7).
 def analyze_workforce_mapping(
     text: str,
     sender: str = "",
@@ -752,6 +775,28 @@ def analyze_workforce_mapping(
     )
 
 
+# ID: WM-002
+# Requirement: Generate a prioritised list of actionable protective recommendations
+#              based on the detected workforce-mapping signal categories and verdict.
+# Purpose: Translate abstract signal categories into concrete user-facing guidance:
+#          do not engage, report to FSO, freeze data sharing, file DCSA tip.
+# Rationale: Recommendation content is driven by triggered signal categories rather than
+#             raw score, ensuring targeted and non-redundant advice per scenario.
+# Inputs: signals (list[WorkforceMappingSignal]) — all triggered signals;
+#         has_named_employer, has_anonymous_client, has_resume_request,
+#         is_cleared_context (bool) — contextual flags set by analyze_workforce_mapping;
+#         verdict (WorkforceMappingVerdict) — overall risk level.
+# Outputs: list[str] — ordered recommendations from highest to lowest urgency; never None.
+# Preconditions: signals list may be empty (returns generic CLEAN advice).
+# Postconditions: At least one recommendation is always present.
+# Assumptions: Category strings match the WorkforceMappingSignal.category values defined
+#              in the signal table (e.g., "pii_enumeration", "network_mapping").
+# Side Effects: None — pure function.
+# Failure Modes: Unknown category strings are silently ignored via set membership check.
+# Error Handling: No guards needed — all comparisons are O(1) set/bool operations.
+# Constraints: O(|signals|); expected < 1 ms.
+# Verification: test_detector.py::test_workforce_mapping_* — recommendations per verdict tier.
+# References: NCSC "Know the Risk" advisory; SEAD 3 foreign contact reporting; DCSA CI tips.
 def _build_recommendations(
     signals: list[WorkforceMappingSignal],
     has_named_employer: bool,

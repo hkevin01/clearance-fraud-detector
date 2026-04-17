@@ -177,6 +177,24 @@ _CHECKS: list[tuple[re.Pattern, str, str, str, str, float]] = [
 ]
 
 
+# ID: VI-001
+# Requirement: Scan a call transcript or recruiter-contact notes for vishing indicators —
+#              AI voice fraud, DPRK IT-worker scheme signals, and PII-over-phone harvesting.
+# Purpose: Detect phone/video-based fraud that bypasses email-centric rule detection.
+# Rationale: Ten compiled regex checks cover the DPRK camera-off, AI voice, instant-offer,
+#             and Telegram-only communication patterns documented by FBI and DCSA since 2022.
+# Inputs: transcript (str) — raw text of a call transcript or interview notes; may be empty.
+# Outputs: VishingAnalysis with risk_score ∈ [0, 1], is_suspicious_call flag, and findings list.
+# Preconditions: _CHECKS list is populated with (pattern, severity, category, finding, detail, weight).
+# Postconditions: risk_score = min(1 − 1/(1 + raw×0.45), 1.0) with logistic damping; findings
+#                 are sorted descending by weight via the top_indicators property.
+# Assumptions: All patterns compiled at module load; thread-safe for concurrent reads.
+# Side Effects: None — pure function; no I/O or shared-state mutation.
+# Failure Modes: Empty transcript returns risk_score 0.0, is_suspicious_call False — no exception.
+# Error Handling: No explicit guards required — all regex matches return None safely on no match.
+# Constraints: O(|_CHECKS| × |transcript|); expected < 2 ms on transcripts under 10 kB.
+# Verification: test_detector.py::test_vishing_* — each check pattern hit; clean transcript 0.0.
+# References: FBI PSA I-100223-PSA (DPRK IT workers, Oct 2023); DCSA CI Advisory 2022-001.
 def analyze_vishing(transcript: str) -> VishingAnalysis:
     """
     Analyze a call transcript or interview notes for vishing / AI voice fraud indicators.

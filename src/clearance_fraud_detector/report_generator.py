@@ -204,6 +204,29 @@ REPORTING_AGENCIES = [
 ]
 
 
+# ID: RG-001
+# Requirement: Generate a 7-section DCSA/FBI-ready incident report from structured input,
+#              covering summary, narrative, violations, evidence, agency steps, prohibitions,
+#              and legal authority references.
+# Purpose: Produce a document suitable for submission to DCSA MITS, FBI tip forms, and
+#          FTC reportfraud.ftc.gov without requiring the victim to know the CFR citation structure.
+# Rationale: Structured sections mirror the DCSA MITS form fields so the output can be
+#             copy-pasted directly; agency steps include phone numbers and URL paths verified
+#             against dcsa.mil and ic3.gov as of report publication date.
+# Inputs: inp (IncidentReportInput) — all known incident details; none are required beyond
+#         company_name, violations, and narrative (all other fields fall back to safe defaults).
+# Outputs: IncidentReport with sections list; renderable via render() (plain text) or
+#          render_markdown() (Markdown with headers).
+# Preconditions: IncidentReportInput is a valid dataclass instance; datetime.now() is accessible.
+# Postconditions: report.sections contains exactly 7 entries in the order defined here.
+# Assumptions: REPORTING_AGENCIES list in this module is up to date with agency contact info.
+# Side Effects: datetime.now() called once — not pure; deterministic except for timestamp.
+# Failure Modes: Empty violations list produces a generic "manual review recommended" section.
+# Error Handling: All optional fields (recruiter_email, phone, clearance_level) guarded by
+#                 'or' fallback strings before use in formatted output.
+# Constraints: O(|REPORTING_AGENCIES| + |violations|); < 5 ms.
+# Verification: test_detector.py::test_report_generator_* — section count, agency steps present.
+# References: DCSA MITS form; 32 CFR §117.10; 5 U.S.C. §552a (Privacy Act).
 def generate_report(inp: IncidentReportInput) -> IncidentReport:
     """
     Generate a formatted incident report from structured input.

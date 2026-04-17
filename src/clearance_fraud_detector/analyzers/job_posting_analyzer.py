@@ -212,6 +212,25 @@ _JOB_CHECKS: list[tuple[re.Pattern, str, str, str, str, float]] = [
 ]
 
 
+# ID: JP-001
+# Requirement: Score a job posting text against 13 fraud indicator checks and return a
+#              JobPostingAnalysis with a logistic risk score and categorized findings.
+# Purpose: Detect fake clearance job postings — from simple PII-harvest forms to DPRK
+#          IT-worker laptop-farm schemes — before a candidate submits any personal data.
+# Rationale: Logistic-style scoring (1 − 1/(1 + raw×0.5)) provides diminishing returns
+#             so that a single strong signal is distinguishable from many weak signals without
+#             a single check saturating the scale.
+# Inputs: posting_text (str) — full text of a job posting; may be multi-paragraph.
+# Outputs: JobPostingAnalysis with risk_score ∈ [0, 1], is_fraudulent flag, and findings list.
+# Preconditions: _JOB_CHECKS list is populated; posting_text is a decoded string.
+# Postconditions: risk_score increases monotonically with matched check count/weights.
+# Assumptions: Each _JOB_CHECKS entry is (pattern, severity, category, finding, detail, weight).
+# Side Effects: None — pure function with no I/O.
+# Failure Modes: Empty text returns risk_score 0.0, is_fraudulent False — no exception.
+# Error Handling: No explicit guards; regex.search returns None safely on no match.
+# Constraints: O(|_JOB_CHECKS| × |posting_text|); expected < 3 ms.
+# Verification: test_detector.py::test_job_posting_* — fraud/clean posting classification.
+# References: FBI DPRK IT Worker PSA 2023; FTC job scam guidance; 32 CFR §117.10(a)(7).
 def analyze_job_posting(posting_text: str) -> JobPostingAnalysis:
     """
     Analyze a job posting for fraud / fake clearance job indicators.

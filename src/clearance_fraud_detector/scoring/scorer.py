@@ -30,6 +30,32 @@ class FraudScore:
     top_reasons: list[str] = field(default_factory=list)
 
 
+# Per-category cap prevents any single category from dominating the total score
+_CATEGORY_CAP: float = 0.35
+# Domain sub-score ceiling — domain findings are strong but should not alone convict
+_DOMAIN_CAP: float = 0.40
+# NLP sub-score ceiling — NLP features are weak signals; context-corroboration required
+_NLP_CAP: float = 0.25
+
+
+# ID: SC-001
+# Requirement: Aggregate rule matches, domain findings, and NLP features into a single
+#              FraudScore in [0.0, 1.0] with an associated Verdict enum.
+# Purpose: Produce the authoritative risk score consumed by CLI output and reports.
+# Rationale: Per-category caps (_CATEGORY_CAP) prevent one verbose category from dominating;
+#             domain and NLP contributions have lower ceilings reflecting lower reliability.
+# Inputs: rule_matches (list[RuleMatch]), domain_findings (list[DomainFinding]),
+#         nlp_findings (NLPFindings) — all may be empty/default.
+# Outputs: FraudScore with total_score, verdict, category_breakdown, and top_reasons.
+# Preconditions: All input lists and NLPFindings are valid (not None); weights in [0,1].
+# Postconditions: FraudScore.total_score ∈ [0.0, 1.0]; verdict matches threshold table.
+# Assumptions: SEVERITY_WEIGHTS keys cover all DomainFinding.severity values in use.
+# Side Effects: None — pure function.
+# Failure Modes: Unexpected DomainFinding.severity falls back to 0.05 via dict.get default.
+# Error Handling: Empty inputs return score 0.0 / Verdict.CLEAN — no exceptions raised.
+# Constraints: O(n) in total findings count; no I/O.
+# Verification: test_detector.py::test_scoring_* — verdict boundaries and score arithmetic.
+# References: NISPOM 32 CFR §117.10; Verdict enum threshold table defined inline.
 def compute_score(
     rule_matches: list[RuleMatch],
     domain_findings: list[DomainFinding],
@@ -43,9 +69,9 @@ def compute_score(
         cat = match.category
         # Cap contribution per category at 0.35 to prevent one category dominating
         current = category_scores.get(cat, 0.0)
-        if current < 0.35:
+        if current < _CATEGORY_CAP:
             add = match.weight * 0.4   # scale rule weights to sub-score
-            category_scores[cat] = min(current + add, 0.35)
+            category_scores[cat] = min(current + add, _CATEGORY_CAP)
 
     score += sum(category_scores.values())
 
@@ -53,7 +79,7 @@ def compute_score(
     domain_score = 0.0
     for df in domain_findings:
         domain_score += SEVERITY_WEIGHTS.get(df.severity, 0.05)
-    domain_score = min(domain_score, 0.40)
+    domain_score = min(domain_score, _DOMAIN_CAP)
     if domain_score > 0:
         category_scores["domain"] = round(domain_score, 3)
     score += domain_score
@@ -67,7 +93,7 @@ def compute_score(
         nlp_score += 0.03
     if nlp_findings.suspicious_urls:
         nlp_score += 0.10 * min(len(nlp_findings.suspicious_urls), 3)
-    nlp_score = min(nlp_score, 0.25)
+    nlp_score = min(nlp_score, _NLP_CAP)
     if nlp_score > 0:
         category_scores["nlp"] = round(nlp_score, 3)
     score += nlp_score

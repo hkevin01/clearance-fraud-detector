@@ -37,6 +37,60 @@ class DomainFinding:
     detail: str
 
 
+# ---------------------------------------------------------------------------
+# Suppress contractor name/domain mismatch when the email discloses a
+# legitimate multi-party context (career fair organiser, staffing firm RPO, etc.)
+# ---------------------------------------------------------------------------
+_LEGITIMATE_LISTING_CONTEXT_PHRASES: tuple[str, ...] = (
+    # Career fair / hiring event organiser context
+    "companies participating",
+    "companies attending",
+    "career fair",
+    "virtual career fair",
+    "hiring event",
+    "employers participating",
+    "employers attending",
+    "register for the event",
+    "cleared career",
+    "cleared virtual",
+    "cleared hiring",
+    # Staffing agency / RPO disclosed third-party context
+    "recruiting on behalf of",
+    "staffing on behalf of",
+    "placement on behalf of",
+    "working on behalf of",
+    "on behalf of our client",
+    # RPO/exclusive sourcing partner disclosures (e.g., eTalent Network for TSCTI)
+    "sole agency that does recruitment",
+    "sole agency for",
+    "exclusive recruiter for",
+    "exclusive agency for",
+    "recruitment sourcing for",
+    "sole staffing partner",
+    "staffing partner for",
+)
+
+
+# ID: DA-001
+# Requirement: Analyse sender and reply-to domains in an EmailDocument for spoofing,
+#              typosquatting, contractor name/domain mismatches, gov-keyword abuse,
+#              subdomain impersonation, and Chinese consumer email indicators.
+# Purpose: Provide domain-level fraud signals to complement regex rule hits.
+# Rationale: Domain analysis catches spoofing attacks that bypass body-text rules;
+#             legitimate listing context suppression reduces false positives for career
+#             fair and RPO emails that legitimately name third-party contractors.
+# Inputs: doc (EmailDocument) — fully parsed email; sender_domain may be empty string.
+# Outputs: list[DomainFinding] — zero or more findings ordered by detection check number.
+# Preconditions: doc.full_text, doc.sender_domain, and doc.reply_to_domain are accessible.
+# Postconditions: No duplicate findings for the same domain + check combination.
+# Assumptions: tldextract handles international TLDs; LEGITIMATE_CONTRACTORS is current.
+# Side Effects: None — pure function.
+# Failure Modes: tldextract failure (network needed for fresh TLD data) returns empty suffix
+#                — gov keyword check skips silently; no exception propagates to caller.
+# Error Handling: All checks guard on truthiness of sender_domain/reply_domain before use.
+# Constraints: O(|LEGITIMATE_CONTRACTORS|) per email; expected < 3 ms.
+# Verification: test_detector.py::test_domain_* — each of the 7 check types.
+# References: KNOWN_FAKE_RECRUITING_DOMAINS (known_contractors.py); 32 CFR §117.10.
 def analyze_domains(doc: EmailDocument) -> list[DomainFinding]:
     findings: list[DomainFinding] = []
     sender_domain = doc.sender_domain
@@ -74,35 +128,7 @@ def analyze_domains(doc: EmailDocument) -> list[DomainFinding]:
     #   - Career fairs: organizer legitimately lists many exhibiting contractors
     #   - Staffing agency disclosure: "recruiting on behalf of [Company]" is the
     #     correct way for a staffing firm to identify the end client
-    LEGITIMATE_LISTING_CONTEXT_PHRASES: tuple[str, ...] = (
-        # Career fair / hiring event organizer context
-        "companies participating",
-        "companies attending",
-        "career fair",
-        "virtual career fair",
-        "hiring event",
-        "employers participating",
-        "employers attending",
-        "register for the event",
-        "cleared career",
-        "cleared virtual",
-        "cleared hiring",
-        # Staffing agency / RPO disclosed third-party context
-        "recruiting on behalf of",
-        "staffing on behalf of",
-        "placement on behalf of",
-        "working on behalf of",
-        "on behalf of our client",
-        # RPO/exclusive sourcing partner disclosures (e.g., eTalent Network for TSCTI)
-        "sole agency that does recruitment",
-        "sole agency for",
-        "exclusive recruiter for",
-        "exclusive agency for",
-        "recruitment sourcing for",
-        "sole staffing partner",
-        "staffing partner for",
-    )
-    is_legitimate_listing_context = any(phrase in body for phrase in LEGITIMATE_LISTING_CONTEXT_PHRASES)
+    is_legitimate_listing_context = any(phrase in body for phrase in _LEGITIMATE_LISTING_CONTEXT_PHRASES)
 
     if not is_legitimate_listing_context:
         for company, valid_domains in LEGITIMATE_CONTRACTORS.items():

@@ -64,6 +64,23 @@ class NLPFindings:
     fraud_vocab_score: float = 0.0  # 0–1 based on fraud keyword density
 
 
+# ID: NLP-001
+# Requirement: Compute readability signals, fraud keyword density, CAPS abuse, and
+#              suspicious URL presence from raw email/message text.
+# Purpose: Provide soft linguistic features that complement hard regex rule matches.
+# Rationale: NLP features catch AI-generated boilerplate, non-native phrasing (DPRK),
+#             and urgency engineering that rule patterns may miss.
+# Inputs: text (str) — raw email or document body; may be empty.
+# Outputs: NLPFindings dataclass with all computed fields populated; never None.
+# Preconditions: text is a decoded string (caller handles bytes→str conversion).
+# Postconditions: fraud_vocab_score ∈ [0.0, 1.0]; all list fields non-None.
+# Assumptions: FRAUD_VOCAB and LEGITIMATE_VOCAB are module-level sets (thread-safe reads).
+# Side Effects: None — pure function with no I/O or shared state mutation.
+# Failure Modes: Empty text returns zero-valued NLPFindings — no exceptions.
+# Error Handling: total_words guard (max 1) prevents divide-by-zero on empty text.
+# Constraints: O(|text| × |FRAUD_VOCAB|) word lookup; typically < 2 ms for normal emails.
+# Verification: test_detector.py::test_nlp_* — fraud vocab scoring, URL detection edge cases.
+# References: FRAUD_VOCAB / LEGITIMATE_VOCAB defined in this module; scorer.py NLP cap 0.25.
 def analyze_nlp(text: str) -> NLPFindings:
     findings = NLPFindings()
     lower = text.lower()
@@ -100,7 +117,8 @@ def analyze_nlp(text: str) -> NLPFindings:
         # "t.co" must not match "microsoft.com" (microso-f-t.co-m contains "t.co").
         if any(x in url_lower for x in ["://bit.ly/", "://tinyurl.com/", "://t.co/",
                                          "://goo.gl/", "://ow.ly/", "://shorturl.at/",
-                                         "://rebrand.ly/"]):
+                                         "://rebrand.ly/", "://rb.gy/", "://cutt.ly/",
+                                         "://is.gd/", "://v.gd/", "://buff.ly/"]):
             findings.suspicious_urls.append(url)
         elif re.search(r"\.(tk|ml|ga|cf|gq|ru|cn|xyz)(/|$)", url_lower):
             findings.suspicious_urls.append(url)

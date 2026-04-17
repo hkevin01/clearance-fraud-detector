@@ -327,6 +327,24 @@ class ExplainerReport:
         return "\n".join(lines)
 
 
+# ID: EX-001
+# Requirement: Map a list of fraud pattern names to CFR citation entries and return an
+#              ExplainerReport with verbatim regulation text and response guidance.
+# Purpose: Power the CLI `explain --pattern` command and detector.explain_findings() API.
+# Rationale: Direct lookup via PATTERN_TO_CITATION dict keeps O(1) per name; deduplication
+#             via _build_report ensures one citation entry per CFR paragraph regardless of
+#             how many patterns triggered it.
+# Inputs: pattern_names (list[str]) — FraudPattern.name strings from rule_engine matches.
+# Outputs: ExplainerReport with explanations list and reporting_agencies list; never None.
+# Preconditions: PATTERN_TO_CITATION keys match FraudPattern.name values in fraud_patterns.py.
+# Postconditions: Unknown pattern names produce no explanation (silently skipped via .get).
+# Assumptions: CITATION_TABLE is populated and keys match PATTERN_TO_CITATION values.
+# Side Effects: None — pure function.
+# Failure Modes: All-unknown names → empty ExplainerReport.explanations list; no exception.
+# Error Handling: dict.get returns [] for unknown keys — no KeyError possible.
+# Constraints: O(|pattern_names| × avg citations per pattern); < 1 ms.
+# Verification: test_detector.py::test_explainer_* — known pattern → citation round-trip.
+# References: CITATION_TABLE (explainer.py); PATTERN_TO_CITATION mapping; 32 CFR §117.10.
 def explain_patterns(pattern_names: list[str]) -> ExplainerReport:
     """
     Given a list of fraud pattern names (from rule_engine matches), return
@@ -346,6 +364,22 @@ def explain_patterns(pattern_names: list[str]) -> ExplainerReport:
     return _build_report(citation_keys_seen)
 
 
+# ID: EX-002
+# Requirement: Map a list of compliance category names to CFR citations and return an
+#              ExplainerReport, analogous to explain_patterns but keyed on CATEGORY_TO_CITATION.
+# Purpose: Power the CLI `explain --category` command and check_compliance() output rendering.
+# Rationale: Separate category lookup allows nispom_compliance.py output to be explained
+#             independently of rule_engine output; same deduplication logic as EX-001.
+# Inputs: category_names (list[str]) — NispomsViolation.category strings.
+# Outputs: ExplainerReport; structure identical to explain_patterns output.
+# Preconditions: CATEGORY_TO_CITATION keys match category values used in nispom_compliance.py.
+# Postconditions: Unknown category names silently produce no explanation entries.
+# Side Effects: None — pure function.
+# Failure Modes: All-unknown categories → empty ExplainerReport; no exception.
+# Error Handling: dict.get returns [] for unknown keys.
+# Constraints: O(|category_names|); < 1 ms.
+# Verification: test_detector.py::test_explainer_category_* — category → citation round-trip.
+# References: CATEGORY_TO_CITATION mapping; CITATION_TABLE; nispom_compliance.py.
 def explain_categories(category_names: list[str]) -> ExplainerReport:
     """
     Given a list of violation category names (from nispom_compliance), return
@@ -365,6 +399,20 @@ def explain_categories(category_names: list[str]) -> ExplainerReport:
     return _build_report(citation_keys_seen)
 
 
+# ID: EX-003
+# Requirement: Combine explain_patterns and explain_categories into a single deduplicated
+#              ExplainerReport for use when both rule matches and compliance violations are known.
+# Purpose: Support detector.explain_findings() which has access to both signal types.
+# Rationale: Building citation_keys_seen from both sources before calling _build_report once
+#             guarantees deduplication without calling _build_report twice and merging results.
+# Inputs: pattern_names (list[str]); category_names (list[str]); either may be empty.
+# Outputs: ExplainerReport; triggered_by lists carry "pattern:X" / "category:Y" prefixes
+#          so callers can distinguish which input triggered each citation.
+# Side Effects: None — pure function.
+# Failure Modes: Both lists empty → empty ExplainerReport; no exception.
+# Constraints: O(|pattern_names| + |category_names|); < 1 ms.
+# Verification: test_detector.py::test_explainer_combined_* — mixed input deduplication.
+# References: EX-001, EX-002; _build_report internal helper.
 def explain_combined(pattern_names: list[str], category_names: list[str]) -> ExplainerReport:
     """Explain from both pattern names and compliance categories, deduplicated."""
     citation_keys_seen: dict[str, list[str]] = {}

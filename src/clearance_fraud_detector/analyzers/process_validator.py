@@ -225,6 +225,27 @@ _RECIPROCITY_SIGNALS: list[re.Pattern] = [
 ]
 
 
+# ID: PV-001
+# Requirement: Detect whether an interaction text describes the NISPOM §117.10 six-step
+#              hiring process in the correct order and flag any skipped or out-of-sequence steps.
+# Purpose: Provide automated compliance assessment for narratives submitted as part of an
+#          incident report, to distinguish genuine process failures from fraudulent ones.
+# Rationale: Pattern matching against step-specific detection_patterns provides a text-only
+#             proxy for what should be a documented HR workflow; reciprocity detection reduces
+#             false positives for already-cleared candidates.
+# Inputs: text (str) — any interaction description — email thread, recruiter transcript,
+#         or narrative of events.
+# Outputs: ProcessValidationReport with per-step StepResult list, skipped_steps, violations,
+#          overall_assessment, and is_reciprocity_case flag.
+# Preconditions: PROCESS_STEPS and RECIPROCITY_STEP module-level constants are populated.
+# Postconditions: overall_assessment is one of COMPLIANT / NON_COMPLIANT / INDETERMINATE.
+# Assumptions: Step detection_patterns are IGNORECASE; order of PROCESS_STEPS matches NISPOM §117.10.
+# Side Effects: None — pure function; no I/O.
+# Failure Modes: If no detection patterns fire, all steps are UNKNOWN → INDETERMINATE result.
+# Error Handling: re.compile inside loop is safe; no exception propagates to caller.
+# Constraints: O(|PROCESS_STEPS| × |detection_patterns| × |text|); typically < 5 ms.
+# Verification: test_detector.py::test_process_validator_* — reciprocity, skipped step, full pass.
+# References: 32 CFR §117.10(f)(1)(i)-(ii), §117.10(h) (reciprocity); NISPOM §117.10 sequence.
 def validate_process(text: str) -> ProcessValidationReport:
     """
     Validate a hiring interaction text against the NISPOM §117.10 process sequence.

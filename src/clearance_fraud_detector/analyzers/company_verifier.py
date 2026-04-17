@@ -144,6 +144,27 @@ _OFFER_CONDITIONED_SSN_PATTERNS = [
 ]
 
 
+# ID: CV-001
+# Requirement: Cross-reference a company name, domain, CAGE code, and interaction text
+#              against the verified contractor registry to produce a CompanyVerificationReport.
+# Purpose: Quickly distinguish verified cleared contractors from unknown or fraudulent entities
+#          before a candidate engages further or provides any personal information.
+# Rationale: Six sequential checks (legitimate list → staffing → fake domain → legit domain →
+#             CAGE format → interaction red flags) build up a flag list the CLI renders with
+#             a manual verification checklist when automated checks are inconclusive.
+# Inputs: company_name (str) — as presented; domain, cage_code (str, opt); interaction_text (str, opt).
+# Outputs: CompanyVerificationReport with flags list, manual_checks list, sam_gov_url, and
+#          is_in_legitimate_list, is_in_staffing_list, is_known_fake_domain, is_legitimate_domain bools.
+# Preconditions: LEGITIMATE_CONTRACTORS, KNOWN_FAKE_RECRUITING_DOMAINS, ALL_LEGITIMATE_DOMAINS,
+#                LEGITIMATE_JOB_BOARDS, and VERIFIED_CONTRACTORS are imported and populated.
+# Postconditions: At least one VerificationFlag is added regardless of inputs.
+# Assumptions: KNOWN_FLAGGED_STAFFING_FIRMS is a subset of KNOWN_STAFFING_FIRMS.
+# Side Effects: None — pure function; no I/O or external network calls.
+# Failure Modes: Unknown company with no domain/cage returns UNKNOWN risk with manual checks.
+# Error Handling: All container membership tests handle empty strings via truthiness guards.
+# Constraints: O(|LEGITIMATE_CONTRACTORS| + |KNOWN_FAKE_RECRUITING_DOMAINS|); typically < 2 ms.
+# Verification: test_detector.py::test_company_verifier_* — fake domain, CAGE format, legit hit.
+# References: SAM.gov CAGE lookup; 32 CFR §117.10(a)(7); DCSA NISP contractor requirements.
 def verify_company(
     company_name: str,
     domain: str = "",

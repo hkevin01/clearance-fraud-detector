@@ -138,6 +138,27 @@ class PhoneAnalysis:
 # ---------------------------------------------------------------------------
 # Main analysis function
 # ---------------------------------------------------------------------------
+# ID: PA-001
+# Requirement: Parse, validate, and risk-score a phone number used in cleared-job
+#              recruiting, flagging VoIP, geographic mismatches, and SSN-over-phone requests.
+# Purpose: Identify suspicious caller profiles — DPRK IT-worker proxies, fake FSOs, and
+#          PII-harvest operations that use disposable or spoofed phone numbers.
+# Rationale: The phonenumbers library provides E.164 normalisation, line-type (VoIP/mobile/
+#             fixed), region, and carrier metadata that pure regex cannot supply.
+# Inputs: number (str) — any format phone number; claimed_company, claimed_region (str, opt);
+#         ssn_requested_on_call (bool); pre_offer_contact (bool).
+# Outputs: PhoneAnalysis with is_valid, risk_score ∈ [0, 1], verdict str, and findings list.
+# Preconditions: phonenumbers library installed; number is a string (possibly malformed).
+# Postconditions: PhoneAnalysis.is_valid is False when phonenumbers.parse raises; all other
+#                 fields are populated regardless of validity.
+# Assumptions: KNOWN_COMPANY_NUMBERS keys are E.164-formatted strings.
+# Side Effects: None — pure function.
+# Failure Modes: Unparseable number sets is_valid=False and returns early; no exception escapes.
+# Error Handling: phonenumbers.parse exceptions caught and converted to is_valid=False result.
+# Constraints: phonenumbers library call is O(1); overall O(|KNOWN_COMPANY_NUMBERS|) for lookup.
+# Verification: test_detector.py::test_phone_* — valid/invalid, VoIP, company match, DC metro.
+# References: phonenumbers (libphonenumber); KNOWN_COMPANY_NUMBERS (phone_analyzer.py);
+#             NISPOM 32 CFR §117.10(a)(7) — no SSN on phone pre-offer.
 def analyze_phone(
     number: str,
     claimed_company: str = "",

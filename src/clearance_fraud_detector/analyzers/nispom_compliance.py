@@ -371,6 +371,24 @@ _COMPLIANT_SIGNALS: list[tuple[re.Pattern, str]] = [
 ]
 
 
+# ID: NC-001
+# Requirement: Map interaction text to specific 32 CFR §117.10 paragraph violations and
+#              return a ComplianceReport with verbatim CFR text and recommended actions.
+# Purpose: Translate detected fraud signals into explicit regulatory citations for incident
+#          reporting and victim-guidance workflows.
+# Rationale: DCSA MITS submissions and FBI tips are stronger when citing specific CFR
+#             paragraphs; this function provides that mapping automatically from free text.
+# Inputs: text (str) — email body, recruiter message, call notes, or job posting text.
+# Outputs: ComplianceReport with violations list and has_violations bool property.
+# Preconditions: _VIOLATIONS and _LEGIT_SIGNALS module-level lists are populated.
+# Postconditions: Violations are deduplicated by rule string; legit signals counted separately.
+# Assumptions: Each _VIOLATIONS entry is (pattern, NispomsViolation) 2-tuple.
+# Side Effects: None — pure function with no I/O.
+# Failure Modes: Empty text returns ComplianceReport with no violations — no exception.
+# Error Handling: No guards beyond truthiness checks; unexpected pattern types surface as AttributeError.
+# Constraints: O(|_VIOLATIONS| × |text|); expected < 5 ms for typical interaction texts.
+# Verification: test_detector.py::test_compliance_* — each CFR paragraph triggered correctly.
+# References: 32 CFR §117.10 — effective March 2021; ecfr.gov/current/title-32/section-117.10.
 def check_compliance(text: str) -> ComplianceReport:
     """
     Analyze interaction text against NISPOM 32 CFR §117.10 requirements.
