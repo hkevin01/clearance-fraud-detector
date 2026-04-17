@@ -165,6 +165,73 @@ _EMAIL_CONFIRMATION_PROBE = _p(
     r"(?:clearance|cleared|dod|ts/?sci|top\s+secret|government|defense)"
 )
 
+# Pre-screen clearance questionnaire / structured form (SGS pattern April 2025)
+_PRE_SCREEN_CLEARANCE_TABLE = _p(
+    r"(active\s+clearance\s*[:\|?].{0,30}(yes|no)"
+    r"|(does\s+the\s+candidate\s+have|candidate\s+clearance).{0,50}"
+    r"(active|current).{0,30}(clearance|secret|ts/?sci)"
+    r"|(current\s+clearance\s+(level|tier)|clearance\s+tier)\s*[:\|?]"
+    r"|(previous\s+clearance\s+(level|tier)|prior\s+clearance\s+(level|tier))"
+    r"|clearance\s+last\s+active\s*[:\|]"
+    r"|investigation\s+type\s*[:\|].{0,60}(sbi|sbpr|t5r?|t3r?|tier\s*[3-5]))"
+)
+
+# Legal name as on passport/DL at initial contact — PII harvest
+_LEGAL_NAME_PRESCREEN = _p(
+    r"(legal\s+(full\s+)?name\s*.{0,10}(passport|driver.{0,3}s?\s*licen|p/?p\b|dl\b)"
+    r"|(name\s+as\s+(it\s+)?(appears?|is\s+listed|shown)\s+(on|in)\s+"
+    r"(your\s+)?(passport|id|driver.{0,3}s?\s*licen|government\s+id))"
+    r"|(legal\s+name\s+as\s+in\s+(passport|dl\b|id|government\s+id))"
+    r"|(full\s+legal\s+name.{0,30}(passport|driver.{0,3}s?\s*licen|government\s+id))"
+    r"|(as\s+(listed|shown|appears?)\s+(on|in)\s+(your\s+)?(passport|dl\b|id\b)))"
+)
+
+# Think tank / consulting firm / policy institute front (NCSC/FBI/DCSA 2025)
+_THINK_TANK_FRONT = _p(
+    r"(think\s+tank|policy\s+(institute|center|foundation|group)"
+    r"|research\s+(institute|center|foundation|organization|group)"
+    r"|strategic\s+(studies|research|analysis|institute|consulting)"
+    r"|national\s+security\s+(consultant|consulting|research|analysis)"
+    r"|(advisory|consulting)\s+(firm|group|organization)\s+.{0,100}"
+    r"(clearance|cleared|government|dod|intel|defense|national\s+security))"
+)
+
+# Paid analysis / consulting offer for government/cleared experience (AFOSI 2025)
+_PAID_REPORT_REQUEST = _p(
+    r"(paid\s+(consulting|analysis|research|report|study|engagement)"
+    r".{0,100}(government|defense|dod|policy|national\s+security|clearance)"
+    r"|(government|defense|dod|policy|national\s+security)"
+    r".{0,100}(paid\s+(consulting|analysis|research|report|study|engagement))"
+    r"|(strategic\s+insights?|policy\s+analysis|market\s+research)"
+    r".{0,80}(compensation|paid|payment|honorarium|stipend|consulting\s+fee)"
+    r"|(compensation|paid|payment|honorarium|stipend)\s*.{0,80}"
+    r"(strategic\s+insights?|policy\s+analysis|government\s+experience))"
+)
+
+# Social graph expansion: request for cleared colleague referrals
+_SOCIAL_GRAPH_COLLEAGUE = _p(
+    r"(know\s+(anyone|any\s+colleagues?|others?|someone)\s+"
+    r"(who\s+(might\s+be\s+a?\s+)?(good\s+fit|interested|qualified|available)"
+    r"|with\s+(clearance|ts/?sci|cleared|dod\s+background))"
+    r"|(do\s+you\s+know|could\s+you\s+recommend|any\s+colleagues?)\s+.{0,60}"
+    r"(cleared|clearance|ts/?sci|government|dod|defense)"
+    r"|(colleagues?|contacts?|friends?|connections?)\s+who\s+(might|may|could|are)"
+    r"\s+.{0,60}(cleared|hold\s+a\s+clearance|ts/?sci|interested\s+in)"
+    r"|refer\s+.{0,30}cleared\s+(professional|colleague|contact|friend))"
+)
+
+# Expert insights solicitation based on cleared/government work history
+_EXPERT_INSIGHTS_SOLICITATION = _p(
+    r"(your\s+(government|dod|intel|cleared|defense|federal)\s+"
+    r"(experience|background|insights?|expertise|perspective|knowledge))"
+    r".{0,100}"
+    r"(analysis|report|research|study|brief|opinion|assessment|commentary)"
+    r"|(share\s+(your\s+)?(insights?|perspective|experience|expertise|knowledge)"
+    r".{0,80}(government|dod|intel|cleared|defense|policy|national\s+security))"
+    r"|(expert\s+(opinion|analysis|perspective|insight|commentary)"
+    r".{0,80}(government|defense|intelligence|national\s+security|dod))"
+)
+
 
 # ---------------------------------------------------------------------------
 # Result types
@@ -488,6 +555,135 @@ def analyze_workforce_mapping(
             "EMAIL CONFIRM: Validates that this email belongs to an active clearance holder."
         )
 
+    # --- Signal 12: Pre-screen clearance questionnaire / structured form ---
+    if _PRE_SCREEN_CLEARANCE_TABLE.search(full_text):
+        signals.append(WorkforceMappingSignal(
+            category="pre_screen_clearance_form",
+            description="Structured pre-screen clearance questionnaire detected",
+            severity="critical",
+            detail=(
+                "The message contains a structured clearance questionnaire or table "
+                "(Yes/No active clearance, level/tier fields, investigation type, or "
+                "previous clearance history). A real FSO verifies clearance through DISS "
+                "(dissportal.nbis.mil) \u2014 not by collecting self-reported data via recruiter "
+                "email forms. This format is a documented workforce mapping tactic that "
+                "systematically builds cleared-personnel databases without DISS access. "
+                "Do NOT complete any clearance questionnaire sent by a recruiter. "
+                "If you hold an active clearance, this contact is CI-reportable to your FSO."
+            ),
+            weight=0.45,
+        ))
+        score += 0.45
+        fbi_matches.append("Structured clearance status questionnaire (table/form format) \u2014 SGS pattern April 2025")
+        collection_vectors.append(
+            "CLEARANCE FORM: Systematically collects active status, level/tier, investigation "
+            "type, and clearance history \u2014 no DISS access required by the collector."
+        )
+
+    # --- Signal 13: Legal name (as on Passport/DL) at initial contact ---
+    if _LEGAL_NAME_PRESCREEN.search(full_text):
+        signals.append(WorkforceMappingSignal(
+            category="legal_name_pii_harvest",
+            description="Legal name (as on Passport/DL) requested at initial contact",
+            severity="high",
+            detail=(
+                "The message requests your legal name as it appears on your passport or "
+                "driver's license at the initial contact stage, before any interview or offer. "
+                "Legitimate employers collect legal name post-offer via NBIS eApp "
+                "(eapp.nbis.mil) \u2014 not in a recruiter email form. Passport/DL legal name "
+                "enables identity linking and targeted social engineering attacks against "
+                "cleared professionals. Do not provide this information at initial contact."
+            ),
+            weight=0.40,
+        ))
+        score += 0.40
+        collection_vectors.append(
+            "LEGAL NAME: Collects passport/DL-verified identity for linking and targeted attacks."
+        )
+
+    # --- Signal 14: Paid report / policy analysis elicitation ---
+    if _PAID_REPORT_REQUEST.search(full_text):
+        signals.append(WorkforceMappingSignal(
+            category="paid_analysis_elicitation",
+            description="Paid consulting/analysis offer leveraging government experience",
+            severity="critical",
+            detail=(
+                "The message offers paid consulting or analysis work based on your "
+                "government or cleared work experience. AFOSI/NCSC April 2025: foreign "
+                "intelligence entities offer lucrative 'consulting opportunities' starting "
+                "with harmless policy commentary before escalating to sensitive information. "
+                "Compensation for insights derived from your government access is a "
+                "documented foreign intelligence elicitation technique (MICE \u2014 Money). "
+                "Report this contact to your FSO and/or the FBI at tips.fbi.gov."
+            ),
+            weight=0.50,
+        ))
+        score += 0.50
+        fbi_matches.append("Paid consulting offer for government/cleared experience (NCSC-FBI-DCSA advisory April 2025)")
+        collection_vectors.append(
+            "PAID ELICITATION: Compensation for policy analysis or government insights \u2014 "
+            "documented escalation pathway to classified information disclosure."
+        )
+
+    # --- Signal 15: Expert insights solicitation (uncompensated) ---
+    if _EXPERT_INSIGHTS_SOLICITATION.search(full_text) and not _PAID_REPORT_REQUEST.search(full_text):
+        signals.append(WorkforceMappingSignal(
+            category="insights_solicitation",
+            description="Government/cleared experience insights solicited",
+            severity="high",
+            detail=(
+                "The message solicits policy commentary, analysis, or 'insights' based on "
+                "your government or cleared work experience. AFOSI advisory: adversaries "
+                "build trust by requesting seemingly harmless expert opinions before "
+                "escalating requests. Any external request for analysis based on your "
+                "cleared/government access history from an unverified party is CI-reportable."
+            ),
+            weight=0.30,
+        ))
+        score += 0.30
+        fbi_matches.append("Government experience insights solicitation (escalation pathway indicator)")
+
+    # --- Signal 16: Social graph expansion via colleague referral ---
+    if _SOCIAL_GRAPH_COLLEAGUE.search(full_text):
+        signals.append(WorkforceMappingSignal(
+            category="social_graph_expansion",
+            description="Cleared colleague referral requested",
+            severity="high",
+            detail=(
+                "The message asks you to refer cleared colleagues, contacts, or friends. "
+                "In the cleared community, your professional contacts are typically other "
+                "cleared individuals \u2014 providing referrals to an unvetted party maps an "
+                "extended network of cleared personnel as secondary collection targets. "
+                "This is a social-graph expansion tactic that multiplies the value of "
+                "a single contact into a broader cleared-professional database."
+            ),
+            weight=0.30,
+        ))
+        score += 0.30
+        collection_vectors.append(
+            "SOCIAL GRAPH: Referred cleared colleagues become secondary database targets."
+        )
+
+    # --- Signal 17: Think tank / consulting front indicators ---
+    if _THINK_TANK_FRONT.search(full_text) and is_cleared_context:
+        signals.append(WorkforceMappingSignal(
+            category="think_tank_front",
+            description="Think tank / policy institute / consulting front framing",
+            severity="high",
+            detail=(
+                "This message references a think tank, policy institute, or strategic "
+                "consulting firm targeting cleared/government personnel. NCSC/FBI/DCSA "
+                "April 2025 advisory: foreign intelligence entities specifically use "
+                "consulting firm, think tank, and research organization cover to approach "
+                "cleared defense and government personnel. Verify via SAM.gov CAGE code "
+                "lookup, domain WHOIS (check registration date), and a callback to the "
+                "company's publicly listed main number \u2014 not the number in this message."
+            ),
+            weight=0.25,
+        ))
+        score += 0.25
+        fbi_matches.append("Think tank / consulting firm front (NCSC-FBI-DCSA advisory April 2025)")
+
     # --- Contact channel risk ---
     channel = contact_channel.lower()
     sender_lower = sender.lower()
@@ -599,6 +795,55 @@ def _build_recommendations(
         recs.append(
             "Do NOT provide a complete list of cleared employers. Your cleared employer "
             "chain is a sensitive access map. Disclose only through official post-offer channels."
+        )
+
+    if "pre_screen_clearance_form" in categories:
+        recs.append(
+            "Do NOT complete or return any pre-screen clearance questionnaire form. "
+            "A legitimate FSO verifies clearance through DISS (dissportal.nbis.mil) \u2014 they "
+            "do not collect this data from candidates via email forms. This contact may be "
+            "CI-reportable under SEAD 3 \u2014 notify your FSO."
+        )
+
+    if "legal_name_pii_harvest" in categories:
+        recs.append(
+            "Do NOT provide your legal name as it appears on your passport or driver's "
+            "license at the initial contact stage. This is only collected post-offer via "
+            "NBIS eApp (eapp.nbis.mil). Providing it to a recruiter at initial contact "
+            "is a PII harvesting technique."
+        )
+
+    if "paid_analysis_elicitation" in categories:
+        recs.append(
+            "COUNTERINTELLIGENCE WARNING: Do NOT accept paid consulting or analysis work "
+            "based on your government/cleared experience from an unverified party. "
+            "This is a documented foreign intelligence elicitation technique (AFOSI 2025). "
+            "Report this contact to your FSO and the FBI at tips.fbi.gov immediately."
+        )
+
+    if "insights_solicitation" in categories:
+        recs.append(
+            "Do NOT share policy analysis, expert opinions, or insights derived from "
+            "your government/cleared work with unvetted external parties. Even unpaid "
+            "requests for commentary based on your government access are CI-reportable."
+        )
+
+    if "social_graph_expansion" in categories:
+        recs.append(
+            "Do NOT refer cleared colleagues or contacts to this recruiter. In the cleared "
+            "community, your professional contacts are likely other cleared individuals who "
+            "become secondary targets. Provide referrals only after independently verifying "
+            "the recruiter's company via SAM.gov and their cleared-hiring authority."
+        )
+
+    if "think_tank_front" in categories:
+        recs.append(
+            "Verify this organization independently: (1) Search SAM.gov for their CAGE code "
+            "and facility clearance (FCL) status, (2) Check domain WHOIS for registration "
+            "date \u2014 foreign front organizations often have recently registered domains, "
+            "(3) Call the company's published main number \u2014 NOT the number in this message. "
+            "NCSC/FBI/DCSA April 2025: think tanks and consulting firms are the primary "
+            "cover identity for foreign intelligence targeting of cleared US personnel."
         )
 
     if verdict in (WorkforceMappingVerdict.CI_RISK, WorkforceMappingVerdict.CONFIRMED_COLLECTION):

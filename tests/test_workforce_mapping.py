@@ -504,3 +504,384 @@ class TestWorkforceMappingRuleEngine:
             f"'Eligible to obtain clearance' should not push score to LIKELY_FRAUD, "
             f"got {result.total_score}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Test fixtures: new 2025 threat patterns
+# ---------------------------------------------------------------------------
+
+# SGS Consulting / MIT Lincoln Lab FFRDC phishing pattern (April 2025)
+# Structured clearance questionnaire table + legal name as in Passport/DL
+SGS_STYLE_PRESCREEN = {
+    "subject": "Data Scientist - Lexington, MA - REMOTE - MIT Lincoln Laboratory",
+    "sender": "Gulsan@sgsconsulting.com",
+    "body": (
+        "I came across your profile and wanted to reach out regarding an exciting opportunity.\n\n"
+        "Please fill out the following pre-screening information:\n\n"
+        "Does the candidate have an active security clearance? Yes / No\n"
+        "If Yes what is the current clearance level/tier?\n"
+        "Previous clearance level/tier? (if inactive)\n"
+        "Security Clearance Last Active Date:\n"
+        "Investigation Type: (SBI / SBPR / T5 / T5R / T3 / T3R)\n\n"
+        "Note: Legal Full Name (legal name as in Passport/DL):\n\n"
+        "Please return the completed form at your earliest convenience."
+    ),
+}
+
+# Think tank / consulting front targeting cleared personnel
+THINK_TANK_FRONT_MSG = {
+    "subject": "Consulting Opportunity — National Security Research Institute",
+    "sender": "contact@natsec-research.org",
+    "body": (
+        "I represent the National Security Strategic Research Institute, a policy institute "
+        "focused on defense and intelligence matters. We are seeking cleared professionals "
+        "with government backgrounds to contribute to research on national security topics. "
+        "This is a paid consulting engagement where your government and DoD experience would "
+        "be invaluable. We offer competitive compensation for strategic insights and policy "
+        "analysis. Please let me know if you have colleagues with cleared backgrounds who "
+        "might be interested as well."
+    ),
+}
+
+# Paid analysis elicitation (AFOSI April 2025 pattern)
+PAID_ANALYSIS_MSG = {
+    "subject": "Consulting Engagement — Your Government Background",
+    "sender": "outreach@strategic-advisory-group.com",
+    "body": (
+        "Your government experience and cleared background are exactly what our clients "
+        "are looking for. We offer paid consulting engagements for former and current "
+        "government personnel. Payment of $2,500 per report for policy analysis based "
+        "on your DoD and intelligence community experience. This is a flexible remote "
+        "engagement — just share your expert opinion and government insights on current "
+        "defense and national security matters. No clearance required for the analysis itself."
+    ),
+}
+
+# Pre-screen clearance table (structured form format)
+CLEARANCE_PRESCREEN_FORM = {
+    "subject": "TS/SCI Role — Please Complete Pre-Screen",
+    "sender": "recruiter@staffco.net",
+    "body": (
+        "Thank you for your interest. Please complete the following pre-screen:\n\n"
+        "Active Clearance: Yes / No\n"
+        "Current Clearance Level/Tier: _______________\n"
+        "Previous Clearance Level/Tier: _______________\n"
+        "Investigation Type: T5 / T5R / T3 / T3R / SBI\n"
+        "Clearance Last Active Date: _______________\n\n"
+        "Please return this form at your earliest convenience."
+    ),
+}
+
+# Legal name passport/DL request
+LEGAL_NAME_PRESCREEN = {
+    "subject": "Position of Interest — Required Information",
+    "sender": "hr@staffingfirm.com",
+    "body": (
+        "We have a great cleared opportunity for you. To proceed with submission, "
+        "please provide the following:\n\n"
+        "Full Legal Name (as it appears on your Passport or Driver's License):\n"
+        "Current Employer:\n"
+        "Clearance Level:\n\n"
+        "We look forward to hearing from you."
+    ),
+}
+
+# Certificate PDF harvest (CSA advisory pattern)
+CERT_PDF_HARVEST = {
+    "subject": "Verification of Credentials",
+    "sender": "verify@hiring-services.net",
+    "body": (
+        "As part of our candidate verification process, please send us a copy of "
+        "your CISSP certificate and your AWS cert. Please attach the PDF certificates "
+        "to your reply so we can verify your credentials before proceeding."
+    ),
+}
+
+# Social graph expansion
+SOCIAL_GRAPH_MSG = {
+    "subject": "Cleared DevSecOps Roles Available",
+    "sender": "recruiter@defhire.net",
+    "body": (
+        "We have several cleared DevSecOps openings with TS/SCI requirements. "
+        "Do you know any colleagues with a clearance who might be a good fit or interested? "
+        "Also, do you know anyone with a TS/SCI clearance in the DC/MD/VA area? "
+        "We'd love to connect with your cleared contacts."
+    ),
+}
+
+
+# ---------------------------------------------------------------------------
+# Tests: New CI / Workforce Mapping Patterns (2025 threat landscape)
+# ---------------------------------------------------------------------------
+
+class TestNewCI_Patterns2025:
+    """
+    Tests for patterns added in response to NCSC/FBI/DCSA April 2025 advisory
+    and real-world phishing campaigns observed against cleared personnel.
+    """
+
+    # --- Pre-screen clearance table / structured form ---
+
+    def test_sgs_style_prescreen_flags_in_rule_engine(self):
+        """SGS-style structured clearance table fires pre_screen_clearance_table."""
+        result = detector.analyze_text(
+            body=SGS_STYLE_PRESCREEN["body"],
+            sender=SGS_STYLE_PRESCREEN["sender"],
+            subject=SGS_STYLE_PRESCREEN["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "pre_screen_clearance_table" in pattern_names or \
+               "legal_name_passport_prescreen" in pattern_names, (
+            "SGS-style email should fire at least one pre-screen form pattern"
+        )
+
+    def test_sgs_style_prescreen_suspicious_score(self):
+        """SGS-style pre-screen table pushes fraud score above CLEAN threshold."""
+        result = detector.analyze_text(
+            body=SGS_STYLE_PRESCREEN["body"],
+            sender=SGS_STYLE_PRESCREEN["sender"],
+            subject=SGS_STYLE_PRESCREEN["subject"],
+        )
+        assert result.total_score > 0.20, (
+            f"SGS-style structured form should score above CLEAN, got {result.total_score}"
+        )
+
+    def test_clearance_prescreen_form_fires(self):
+        """Standalone 'Active Clearance: Yes/No + Investigation Type' table fires."""
+        result = detector.analyze_text(
+            body=CLEARANCE_PRESCREEN_FORM["body"],
+            sender=CLEARANCE_PRESCREEN_FORM["sender"],
+            subject=CLEARANCE_PRESCREEN_FORM["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "pre_screen_clearance_table" in pattern_names
+
+    def test_investigation_type_field_detected(self):
+        """'Investigation Type: T5 / T5R / T3 / T3R' field fires pre_screen_clearance_table."""
+        result = detector.analyze_text(
+            body="Please complete: Investigation Type: T5 / T5R / T3 / T3R / SBI",
+            sender="r@firm.com",
+            subject="Pre-Screen",
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "pre_screen_clearance_table" in pattern_names
+
+    # --- Legal name / passport / DL at initial contact ---
+
+    def test_legal_name_passport_fires(self):
+        """'Legal Full Name (legal name as in Passport/DL)' fires legal_name_passport_prescreen."""
+        result = detector.analyze_text(
+            body=LEGAL_NAME_PRESCREEN["body"],
+            sender=LEGAL_NAME_PRESCREEN["sender"],
+            subject=LEGAL_NAME_PRESCREEN["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "legal_name_passport_prescreen" in pattern_names, (
+            "Legal name as in Passport/DL request should fire legal_name_passport_prescreen"
+        )
+
+    def test_legal_name_as_on_passport_variant(self):
+        """'name as it appears on your passport' variant is detected."""
+        result = detector.analyze_text(
+            body="Please provide your full name as it appears on your passport or government ID.",
+            sender="hr@company.com",
+            subject="Required Information",
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "legal_name_passport_prescreen" in pattern_names
+
+    # --- Workforce mapping analyzer signals ---
+
+    def test_wm_pre_screen_form_signal(self):
+        """Workforce mapping analyzer detects pre_screen_clearance_form signal."""
+        result = analyze_workforce_mapping(
+            text=SGS_STYLE_PRESCREEN["body"],
+            sender=SGS_STYLE_PRESCREEN["sender"],
+            subject=SGS_STYLE_PRESCREEN["subject"],
+        )
+        categories = {s.category for s in result.signals}
+        assert "pre_screen_clearance_form" in categories
+
+    def test_wm_pre_screen_form_raises_verdict(self):
+        """Pre-screen clearance form should yield at least CI_RISK verdict."""
+        result = analyze_workforce_mapping(
+            text=CLEARANCE_PRESCREEN_FORM["body"],
+            sender=CLEARANCE_PRESCREEN_FORM["sender"],
+            subject=CLEARANCE_PRESCREEN_FORM["subject"],
+        )
+        assert result.verdict in (
+            WorkforceMappingVerdict.CI_RISK,
+            WorkforceMappingVerdict.CONFIRMED_COLLECTION,
+        ), f"Pre-screen form should be CI_RISK+, got {result.verdict} (score={result.risk_score})"
+
+    def test_wm_legal_name_signal(self):
+        """Workforce mapping analyzer detects legal_name_pii_harvest signal."""
+        result = analyze_workforce_mapping(
+            text=LEGAL_NAME_PRESCREEN["body"],
+            sender=LEGAL_NAME_PRESCREEN["sender"],
+            subject=LEGAL_NAME_PRESCREEN["subject"],
+        )
+        categories = {s.category for s in result.signals}
+        assert "legal_name_pii_harvest" in categories
+
+    def test_wm_sgs_is_ci_reportable(self):
+        """SGS-style email (pre-screen form + legal name) is CI reportable."""
+        result = analyze_workforce_mapping(
+            text=SGS_STYLE_PRESCREEN["body"],
+            sender=SGS_STYLE_PRESCREEN["sender"],
+            subject=SGS_STYLE_PRESCREEN["subject"],
+        )
+        assert result.is_ci_reportable is True, (
+            f"SGS-style email with clearance table should be CI-reportable, "
+            f"got verdict={result.verdict} score={result.risk_score}"
+        )
+
+    # --- Think tank / consulting front ---
+
+    def test_think_tank_front_fires_in_rule_engine(self):
+        """Think tank + cleared focus fires think_tank_consulting_front."""
+        result = detector.analyze_text(
+            body=THINK_TANK_FRONT_MSG["body"],
+            sender=THINK_TANK_FRONT_MSG["sender"],
+            subject=THINK_TANK_FRONT_MSG["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "think_tank_consulting_front" in pattern_names or \
+               "paid_analysis_report_request" in pattern_names or \
+               "social_graph_colleague_referral" in pattern_names, (
+            "Think tank front message should fire at least one foreign_front pattern"
+        )
+
+    def test_wm_think_tank_front_signal(self):
+        """Workforce mapping analyzer detects think_tank_front signal."""
+        result = analyze_workforce_mapping(
+            text=THINK_TANK_FRONT_MSG["body"],
+            sender=THINK_TANK_FRONT_MSG["sender"],
+            subject=THINK_TANK_FRONT_MSG["subject"],
+        )
+        categories = {s.category for s in result.signals}
+        assert "think_tank_front" in categories or \
+               "paid_analysis_elicitation" in categories or \
+               "social_graph_expansion" in categories, (
+            f"Think tank message should flag CI signals, got: {categories}"
+        )
+
+    # --- Paid analysis / consulting elicitation ---
+
+    def test_paid_analysis_fires_in_rule_engine(self):
+        """Paid consulting offer for government insights fires paid_analysis_report_request."""
+        result = detector.analyze_text(
+            body=PAID_ANALYSIS_MSG["body"],
+            sender=PAID_ANALYSIS_MSG["sender"],
+            subject=PAID_ANALYSIS_MSG["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "paid_analysis_report_request" in pattern_names or \
+               "expert_government_insights_solicitation" in pattern_names, (
+            "Paid analysis offer for government experience should fire a foreign_front pattern"
+        )
+
+    def test_wm_paid_elicitation_signal(self):
+        """Workforce mapping analyzer detects paid_analysis_elicitation signal."""
+        result = analyze_workforce_mapping(
+            text=PAID_ANALYSIS_MSG["body"],
+            sender=PAID_ANALYSIS_MSG["sender"],
+            subject=PAID_ANALYSIS_MSG["subject"],
+        )
+        categories = {s.category for s in result.signals}
+        assert "paid_analysis_elicitation" in categories, (
+            f"Paid analysis offer should trigger paid_analysis_elicitation, got: {categories}"
+        )
+
+    def test_wm_paid_elicitation_ci_risk(self):
+        """Paid analysis elicitation yields CI_RISK or higher."""
+        result = analyze_workforce_mapping(
+            text=PAID_ANALYSIS_MSG["body"],
+            sender=PAID_ANALYSIS_MSG["sender"],
+            subject=PAID_ANALYSIS_MSG["subject"],
+        )
+        assert result.verdict in (
+            WorkforceMappingVerdict.CI_RISK,
+            WorkforceMappingVerdict.CONFIRMED_COLLECTION,
+        ), f"Paid analysis should be CI_RISK+, got {result.verdict} (score={result.risk_score})"
+
+    # --- Social graph expansion ---
+
+    def test_social_graph_fires_in_rule_engine(self):
+        """'Do you know any cleared colleagues' fires social_graph_colleague_referral."""
+        result = detector.analyze_text(
+            body=SOCIAL_GRAPH_MSG["body"],
+            sender=SOCIAL_GRAPH_MSG["sender"],
+            subject=SOCIAL_GRAPH_MSG["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "social_graph_colleague_referral" in pattern_names
+
+    def test_wm_social_graph_signal(self):
+        """Workforce mapping analyzer detects social_graph_expansion signal."""
+        result = analyze_workforce_mapping(
+            text=SOCIAL_GRAPH_MSG["body"],
+            sender=SOCIAL_GRAPH_MSG["sender"],
+            subject=SOCIAL_GRAPH_MSG["subject"],
+        )
+        categories = {s.category for s in result.signals}
+        assert "social_graph_expansion" in categories
+
+    # --- Credential / certificate harvest ---
+
+    def test_cert_pdf_request_fires(self):
+        """Request for CISSP/AWS cert PDF fires certification_pdf_request."""
+        result = detector.analyze_text(
+            body=CERT_PDF_HARVEST["body"],
+            sender=CERT_PDF_HARVEST["sender"],
+            subject=CERT_PDF_HARVEST["subject"],
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "certification_pdf_request" in pattern_names
+
+    def test_clearance_cert_request_fires(self):
+        """Request for clearance certificate document fires clearance_certificate_document_request."""
+        result = detector.analyze_text(
+            body="Please send us a copy of your clearance certificate or eligibility letter.",
+            sender="hr@fake.com",
+            subject="Clearance Verification",
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "clearance_certificate_document_request" in pattern_names
+
+    def test_cac_request_fires(self):
+        """Request for CAC card details fires cac_piv_request."""
+        result = detector.analyze_text(
+            body="Please share your CAC card number and certificate details for verification.",
+            sender="admin@contractor.net",
+            subject="ID Verification",
+        )
+        pattern_names = [m.pattern.name for m in result.rule_matches]
+        assert "cac_piv_request" in pattern_names
+
+    # --- Recommendations for new categories ---
+
+    def test_pre_screen_form_recommendation(self):
+        """Pre-screen form signal generates FSO reporting recommendation."""
+        result = analyze_workforce_mapping(
+            text=CLEARANCE_PRESCREEN_FORM["body"],
+            sender=CLEARANCE_PRESCREEN_FORM["sender"],
+            subject=CLEARANCE_PRESCREEN_FORM["subject"],
+        )
+        joined = " ".join(result.recommendations).lower()
+        assert "questionnaire" in joined or "form" in joined or "fso" in joined, (
+            "Pre-screen form should generate recommendation about questionnaire/FSO"
+        )
+
+    def test_paid_elicitation_recommendation_warns_fso(self):
+        """Paid analysis elicitation recommendation warns to report to FSO."""
+        result = analyze_workforce_mapping(
+            text=PAID_ANALYSIS_MSG["body"],
+            sender=PAID_ANALYSIS_MSG["sender"],
+            subject=PAID_ANALYSIS_MSG["subject"],
+        )
+        joined = " ".join(result.recommendations).lower()
+        assert "fso" in joined or "tips.fbi.gov" in joined, (
+            "Paid elicitation should recommend FSO/FBI reporting"
+        )
+

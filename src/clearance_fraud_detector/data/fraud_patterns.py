@@ -750,6 +750,189 @@ CLEARANCE_HARVEST_PATTERNS: list[FraudPattern] = [
 ]
 
 # ---------------------------------------------------------------------------
+# Pre-Screen Clearance Questionnaire / Structured Form Data Harvest
+#
+# The SGS Consulting pattern (April 2025): structured Yes/No table asking
+# active clearance status, level/tier, previous clearance, investigation type,
+# and "Legal Full Name (as in Passport/DL)" — at initial recruiter contact
+# before any interview or offer.
+#
+# Real NISPOM process: FSOs verify clearance via DISS (dissportal.nbis.mil).
+# Recruiters have no authority to collect clearance data via email forms.
+# Ref: 32 CFR §117.10; DCSA SEAD-3; SGS Consulting / MIT LL FFRDC, April 2025
+# ---------------------------------------------------------------------------
+PRE_SCREEN_CLEARANCE_FORM_PATTERNS: list[FraudPattern] = [
+    FraudPattern("pre_screen_clearance_table",
+                 _p(r"(active\s+clearance\s*[:\|?].{0,30}(yes|no)"
+                    r"|(does\s+the\s+candidate\s+have|candidate\s+clearance).{0,50}"
+                    r"(active|current).{0,30}(clearance|secret|ts/?sci)"
+                    r"|(current\s+clearance\s+(level|tier)|clearance\s+tier)\s*[:\|?]"
+                    r"|(previous\s+clearance\s+(level|tier)|prior\s+clearance\s+(level|tier))"
+                    r"|clearance\s+last\s+active\s*[:\|]"
+                    r"|investigation\s+type\s*[:\|].{0,60}(sbi|sbpr|t5r?|t3r?|tier\s*[3-5]))"
+                    ),
+                 0.65, "pre_screen_form",
+                 "Structured pre-screen clearance questionnaire: table/form asking active "
+                 "clearance status (Yes/No), level/tier, previous clearance, and investigation "
+                 "type at initial recruiter contact — before any interview or offer. "
+                 "A real FSO verifies clearance through DISS (32 CFR §117.10); no recruiter "
+                 "has authority to collect this data from candidates via email form. "
+                 "Pattern: SGS Consulting / MIT Lincoln Lab FFRDC phishing, April 2025."),
+    FraudPattern("legal_name_passport_prescreen",
+                 _p(r"(legal\s+(full\s+)?name\s*.{0,10}(passport|driver.{0,3}s?\s*licen|p/?p\b|dl\b)"
+                    r"|(name\s+as\s+(it\s+)?(appears?|is\s+listed|shown)\s+(on|in)\s+"
+                    r"(your\s+)?(passport|id|driver.{0,3}s?\s*licen|government\s+id))"
+                    r"|(legal\s+name\s+as\s+in\s+(passport|dl\b|id|government\s+id))"
+                    r"|(full\s+legal\s+name.{0,30}(passport|driver.{0,3}s?\s*licen|government\s+id))"
+                    r"|(as\s+(listed|shown|appears?)\s+(on|in)\s+(your\s+)?(passport|dl\b|id\b)))"
+                    ),
+                 0.70, "pre_screen_form",
+                 "Request for legal name as it appears on passport or driver's license "
+                 "at initial recruiter contact, before any interview or offer. "
+                 "Legitimate cleared employers collect this post-offer via NBIS eApp "
+                 "(eapp.nbis.mil), not in a pre-screen email form. This is a PII "
+                 "harvesting technique enabling identity linking and targeted attacks."),
+    FraudPattern("clearance_history_multi_field",
+                 _p(r"(clearance\s+(level|tier|status)\s*[:\|?].{0,300}"
+                    r"(investigation\s+type|previous\s+clearance|prior\s+clearance|last\s+active)"
+                    r"|(investigation\s+type|previous\s+clearance|prior\s+clearance)\s*[:\|?]"
+                    r".{0,300}(clearance\s+(level|tier|status)|last\s+active|inactive\s+since))",
+                    re.IGNORECASE | re.DOTALL),
+                 0.65, "pre_screen_form",
+                 "Multi-field clearance history data collection (level + investigation type + "
+                 "previous clearance) in a single recruiter email or form. This structured "
+                 "data aggregation mirrors DISS JVS fields — accessible only to credentialed "
+                 "FSOs, not recruiters. No pre-offer collection of this data is authorized."),
+]
+
+# ---------------------------------------------------------------------------
+# Foreign Intelligence Front Organization Patterns
+#
+# NCSC/FBI/DCSA April 2025 joint advisory: foreign intelligence entities pose
+# as consulting firms, headhunters, think tanks, and research organizations
+# to target current and former USG/cleared personnel for collection.
+#
+# Hallmarks: paid consulting for "strategic insights"; think-tank/advisory
+# framing; escalating requests for government-experience commentary;
+# immediate payment for policy analysis; cleared colleague referral requests.
+#
+# Ref: NCSC-FBI-DCSA advisory 2025-04-08; AFOSI Public Affairs 2025-04-21;
+#      FBI "Think Before You Link" counterintelligence advisory
+# ---------------------------------------------------------------------------
+FOREIGN_FRONT_PATTERNS: list[FraudPattern] = [
+    FraudPattern("think_tank_consulting_front",
+                 _p(r"(think\s+tank|policy\s+(institute|center|foundation|group)"
+                    r"|research\s+(institute|center|foundation|organization|group)"
+                    r"|strategic\s+(studies|research|analysis|institute|consulting)"
+                    r"|national\s+security\s+(consultant|consulting|research|analysis)"
+                    r"|(advisory|consulting)\s+(firm|group|organization)\s+.{0,100}"
+                    r"(clearance|cleared|government|dod|intel|defense|national\s+security))"
+                    ),
+                 0.45, "foreign_front",
+                 "Think tank, policy institute, or strategic consulting firm framing combined "
+                 "with cleared/defense/national security focus. NCSC/FBI/DCSA April 2025: "
+                 "adversaries pose as consulting firms, think tanks, and research organizations "
+                 "to recruit cleared government personnel. Verify via SAM.gov CAGE code, "
+                 "domain WHOIS (check registration date), and callback to published main number."),
+    FraudPattern("paid_analysis_report_request",
+                 _p(r"(paid\s+(consulting|analysis|research|report|study|engagement)"
+                    r".{0,100}(government|defense|dod|policy|national\s+security|clearance)"
+                    r"|(government|defense|dod|policy|national\s+security)"
+                    r".{0,100}(paid\s+(consulting|analysis|research|report|study|engagement))"
+                    r"|(strategic\s+insights?|policy\s+analysis|market\s+research)"
+                    r".{0,80}(compensation|paid|payment|honorarium|stipend|consulting\s+fee)"
+                    r"|(compensation|paid|payment|honorarium|stipend)\s*.{0,80}"
+                    r"(strategic\s+insights?|policy\s+analysis|government\s+experience))",
+                    re.IGNORECASE | re.DOTALL),
+                 0.65, "foreign_front",
+                 "Offer of paid consulting or analysis based on government/cleared experience. "
+                 "AFOSI April 2025: adversaries offer lucrative consulting opportunities "
+                 "starting with policy commentary before escalating to sensitive information. "
+                 "Immediate payment for government insights is a documented foreign "
+                 "intelligence elicitation technique. Report to your FSO."),
+    FraudPattern("expert_government_insights_solicitation",
+                 _p(r"(your\s+(government|dod|intel|cleared|defense|federal)\s+"
+                    r"(experience|background|insights?|expertise|perspective|knowledge))"
+                    r".{0,100}"
+                    r"(analysis|report|research|study|brief|opinion|assessment|commentary)"
+                    r"|(share\s+(your\s+)?(insights?|perspective|experience|expertise|knowledge)"
+                    r".{0,80}(government|dod|intel|cleared|defense|policy|national\s+security))"
+                    r"|(expert\s+(opinion|analysis|perspective|insight|commentary)"
+                    r".{0,80}(government|defense|intelligence|national\s+security|dod))",
+                    re.IGNORECASE | re.DOTALL),
+                 0.55, "foreign_front",
+                 "Soliciting policy commentary or insights based on government/cleared "
+                 "work experience from an unvetted party. AFOSI advisory: adversaries build "
+                 "trust via harmless commentary requests before escalating to sensitive "
+                 "information. Any external request for analysis based on your government/ "
+                 "cleared access history is CI-reportable."),
+    FraudPattern("social_graph_colleague_referral",
+                 _p(r"(know\s+(anyone|any\s+colleagues?|others?|someone)\s+"
+                    r"(who\s+(might\s+be\s+a?\s+)?(good\s+fit|interested|qualified|available)"
+                    r"|with\s+(clearance|ts/?sci|cleared|dod\s+background))"
+                    r"|(do\s+you\s+know|could\s+you\s+recommend|any\s+colleagues?)\s+.{0,60}"
+                    r"(cleared|clearance|ts/?sci|government|dod|defense)"
+                    r"|(colleagues?|contacts?|friends?|connections?)\s+who\s+(might|may|could|are)"
+                    r"\s+.{0,60}(cleared|hold\s+a\s+clearance|ts/?sci|interested\s+in)"
+                    r"|refer\s+.{0,30}cleared\s+(professional|colleague|contact|friend))"
+                    ),
+                 0.40, "foreign_front",
+                 "Request for referrals of cleared colleagues or contacts. Social-graph "
+                 "expansion tactic: each referral maps additional cleared personnel as "
+                 "secondary targets. FBI advisory: in the cleared community, professional "
+                 "contacts are typically other cleared individuals — providing referrals to "
+                 "unvetted parties extends their cleared-professional network database."),
+]
+
+# ---------------------------------------------------------------------------
+# Credential / Certificate Document Harvest
+#
+# Fake recruiters request certification PDFs, CAC details, or non-existent
+# 'clearance certificates'. These contain PII sufficient for targeted phishing.
+# Ref: Cloud Security Alliance advisory April 2025 — certificate PDF harvest;
+#      DCSA — CAC is controlled government property, never shared externally
+# ---------------------------------------------------------------------------
+CREDENTIAL_HARVEST_PATTERNS: list[FraudPattern] = [
+    FraudPattern("certification_pdf_request",
+                 _p(r"(send|email|attach|share|provide|forward|upload)\s+"
+                    r"(me|us|over)?\s*(a\s+)?(copy\s+of\s+)?(your\s+)?"
+                    r"(cissp|ccsp|ccsk|cism|oscp|ceh|comptia|security\+|aws\s+cert"
+                    r"|azure\s+cert|giac|gsec|gpen|gwapt|gcih|gcia|gcfe|gcfa"
+                    r"|casp\+?|cysa\+?|cisa|sscp|pentest\+?)"
+                    r".{0,50}(certificate|certification|cert\b|badge|pdf)"
+                    ),
+                 0.55, "credential_harvest",
+                 "Request to send a security/IT certification PDF by email. Cert PDFs contain "
+                 "name, email address, and verification code — enough PII for a targeted "
+                 "phishing profile. Employers verify certifications independently via Credly "
+                 "or the certification body's public portal. They never need the PDF. "
+                 "Ref: CSA Security Careers advisory April 2025."),
+    FraudPattern("clearance_certificate_document_request",
+                 _p(r"(send|email|attach|share|provide|forward|upload)\s+"
+                    r"(me|us|over)?\s*(a\s+)?(copy\s+of\s+)?(your\s+)?"
+                    r"(clearance\s+certificate|clearance\s+letter|sf.?86\s+summary"
+                    r"|eqip\s+(printout|summary|results?)|clearance\s+verification\s+(letter|document)"
+                    r"|nac\s+letter|investigation\s+results?|eligibility\s+(letter|document)"
+                    r"|security\s+clearance\s+(certificate|document|letter|proof))"
+                    ),
+                 0.90, "credential_harvest",
+                 "Request for a clearance certificate or SF-86 summary document. No such "
+                 "document legitimately exists in recruiter interactions — clearance status "
+                 "is verified FSO-to-FSO through DISS. This is PII harvesting or an attempt "
+                 "to social-engineer disclosure of investigation details."),
+    FraudPattern("cac_piv_request",
+                 _p(r"(send|provide|share|upload|scan|photograph)\s+(me|us)?\s*(your\s+)?"
+                    r"(cac\b|common\s+access\s+card|piv\s+card|smart\s+card|dod\s+id\s+card)"
+                    r".{0,60}(number|certificate|details|information|photo|image|copy|scan)"
+                    ),
+                 0.90, "credential_harvest",
+                 "Request for CAC/PIV card details or photos. CAC cards are controlled "
+                 "government-issued property — no legitimate recruiting interaction involves "
+                 "sharing CAC details. This is identity theft setup or an attempt to create "
+                 "a fraudulent DoD identity credential."),
+]
+
+# ---------------------------------------------------------------------------
 # Workforce Mapping / Cleared Community Profiling
 #
 # Distinct from outright fraud: these patterns detect interactions that collect
@@ -911,5 +1094,8 @@ ALL_PATTERNS: list[FraudPattern] = (
     + OFFER_LETTER_FRAUD_PATTERNS
     + CLEARANCE_HARVEST_PATTERNS
     + MASS_EMAIL_BLAST_PATTERNS
+    + PRE_SCREEN_CLEARANCE_FORM_PATTERNS
+    + FOREIGN_FRONT_PATTERNS
+    + CREDENTIAL_HARVEST_PATTERNS
     + WORKFORCE_MAPPING_PATTERNS
 )
