@@ -101,7 +101,7 @@ CLEARANCE_SCAM_PATTERNS: list[FraudPattern] = [
 # Impersonation / Domain Spoofing
 # ---------------------------------------------------------------------------
 IMPERSONATION_PATTERNS: list[FraudPattern] = [
-    FraudPattern("fake_dod_claim", _p(r"(department\s+of\s+defense|d\.?o\.?d\.?|pentagon)\s+(recruiter|hiring|contractor|representative)"), 0.6,
+    FraudPattern("fake_dod_claim", _p(r"(department\s+of\s+defense|d\.?o\.?d\.?|pentagon)\s+(recruiter|hiring\s+manager|representative)(?!\s{0,30}(?:with|at|for|from)\s+[A-Z])"), 0.6,
                  "impersonation", "Verify DoD-related claims carefully"),
     FraudPattern("nsa_cia_claim", _p(r"\b(NSA|CIA|DIA|NRO|NGA|ODNI|DHS|FBI)\b.{0,40}(hiring|recruit|position|job|opportunity)"), 0.55,
                  "impersonation", "IC agencies post jobs on USAJobs.gov only"),
