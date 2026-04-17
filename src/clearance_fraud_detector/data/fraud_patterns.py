@@ -81,8 +81,14 @@ URGENCY_PATTERNS: list[FraudPattern] = [
 CLEARANCE_SCAM_PATTERNS: list[FraudPattern] = [
     FraudPattern("guarantee_clearance", _p(r"(guarantee\s+(you\s+)?(a\s+)?clearance|we\s+can\s+get\s+you\s+(a\s+)?clearance|clearance\s+guaranteed)"), 1.0,
                  "clearance_scam", "No one can guarantee a security clearance — this is always a scam"),
-    FraudPattern("clearance_for_sale", _p(r"(sell|buy|purchase|obtain).{0,20}(security\s+)?clearance"), 0.95,
-                 "clearance_scam", "Clearances cannot be bought or sold"),
+    FraudPattern("clearance_for_sale",
+                 _p(r"(sell|buy|purchase)\s*.{0,20}(security\s+)?clearance"
+                    r"|(we|i)\s+(can|will|could)\s+(get|obtain|provide|secure|acquire)"
+                    r"\s+(you\s+)?(a\s+)?([\w/]+\s+)?clearance"
+                    r"|clearance\s+(for\s+sale|sold\s+online|available\s+for\s+purchase)"), 0.95,
+                 "clearance_scam",
+                 "Clearances cannot be bought or sold. Note: standard job-posting language "
+                 "'eligible to obtain a DoD security clearance' is NOT this pattern."),
     FraudPattern("polygraph_coaching", _p(r"(beat|pass|cheat|trick|fool).{0,20}(polygraph|lie\s+detector)"), 0.8,
                  "clearance_scam", "Polygraph coaching is illegal and a scam indicator"),
     FraudPattern("easy_ts_sci", _p(r"(easy|quick|fast|expedited).{0,30}(TS[/\s]?SCI|top\s+secret|clearance)"), 0.85,
@@ -743,6 +749,86 @@ CLEARANCE_HARVEST_PATTERNS: list[FraudPattern] = [
         "before registering and read their data retention and sharing policies."),
 ]
 
+# ---------------------------------------------------------------------------
+# Workforce Mapping / Cleared Community Profiling
+#
+# Distinct from outright fraud: these patterns detect interactions that collect
+# intelligence value even when the sender is a real company with a real domain.
+#
+# The threat — documented in FBI "Think Before You Link" advisory
+# (fbi.gov/investigate/counterintelligence/the-china-threat/
+#  clearance-holders-targeted-on-social-media-nevernight-connection):
+#
+#   ‣ Replying confirms email is active + person is clearance-eligible
+#   ‣ Sending a resume discloses cleared employer chain, program history,
+#     clearance level, home address, and facility associations
+#   ‣ Providing references exposes additional cleared professionals
+#   ‣ Answering clearance status probes confirms current access level
+#   ‣ Naming programs discloses access compartments and IC work history
+# ---------------------------------------------------------------------------
+WORKFORCE_MAPPING_PATTERNS: list[FraudPattern] = [
+    FraudPattern("active_clearance_level_probe",
+                 _p(r"(do\s+you\s+(currently|presently)?\s*"
+                    r"(hold|have|possess|maintain)\s+(an?\s+)?"
+                    r"(active|current|valid|existing)\s*(security\s+)?clearance"
+                    r"|what\s+(is|['’]s)\s+your\s+(current|active|existing)?\s*"
+                    r"(clearance|security\s+clearance)\s*(level|status|tier)?"
+                    r"|is\s+your\s+clearance\s+(active|current|valid|still\s+active|in\s+scope)"
+                    r"|currently\s+(hold|possess|have|maintain)\s+(a\s+)?"
+                    r"(ts/?sci|top\s+secret|secret\s+clearance|security\s+clearance)"
+                    r"|your\s+(current|active|existing)\s+(clearance\s+level|clearance\s+status))"),
+                 0.60, "workforce_mapping",
+                 "Probing for ACTIVE/CURRENT clearance status — not just eligibility. "
+                 "Standard job-posting language ('eligible to obtain') is different. "
+                 "Per FBI 'Think Before You Link': clearance holders should be cautious when "
+                 "anyone asks about clearance status online. Confirming active access level "
+                 "maps you as a verified cleared resource in an unvetted contact database."),
+    FraudPattern("classified_program_history_probe",
+                 _p(r"(what\s+(programs?|projects?|contracts?)\s+"
+                    r"(have\s+you\s+)?(worked\s+on|worked\s+with|supported?|been\s+involved)"
+                    r"|(detail|describe)\s+.{0,30}(classified|cleared|government|dod|intel)\s*(work|experience)"
+                    r"|(classified|government|intel(ligence)?)\s+programs?\s+.{0,30}(tell|describe|detail|discuss)"
+                    r"|(tell|describe|discuss)\s+.{0,30}(classified|cleared|dod)\s+(work|experience|programs?))"),
+                 0.75, "workforce_mapping",
+                 "Asking about classified programs/projects before a formal employment relationship. "
+                 "Program names, contract numbers, and compartment descriptions are sensitive. "
+                 "Real recruiters ask about skills — not program names. "
+                 "Report to your FSO if anyone asks you to name classified programs pre-offer."),
+    FraudPattern("cleared_reference_early_request",
+                 _p(r"(references?\s+(before|prior\s+to|upfront|at\s+this\s+(stage|point|time))"
+                    r"|(provide|send|share|list)\s+(your\s+)?(professional\s+)?references?"
+                    r"\s+(now|today|immediately|before|first|at\s+this\s+(stage|time))"
+                    r"|need\s+(your\s+)?references?\s+(before|prior|now|today|first))"),
+                 0.50, "workforce_mapping",
+                 "References requested before any interview for a cleared position. "
+                 "Cleared professional references are themselves likely cleared individuals "
+                 "— early collection builds a secondary database of cleared personnel. "
+                 "This is a social-graph expansion tactic."),
+    FraudPattern("employer_chain_mining",
+                 _p(r"(what\s+(cleared\s+)?contractors?\s+(have\s+you|you\s+have)\s+(worked\s+(for|with)|been\s+employed)"
+                    r"|which\s+(defense|government)\s+(contractors?|companies?|firms?)"
+                    r".{0,50}(worked?\s+(for|with)|employed?\s+by)"
+                    r"|(list|name|tell\s+me)\s+.{0,20}(previous|past|former|prior)"
+                    r"\s+(cleared\s+)?(employers?|contractors?|companies?))"),
+                 0.60, "workforce_mapping",
+                 "Asking for a list of all cleared contractors or defense employers. "
+                 "Your cleared employer chain is an access map revealing facility clearances, "
+                 "program offices, and the personnel security network you are connected to. "
+                 "Disclose employer history only through official post-offer onboarding channels."),
+    FraudPattern("cold_outreach_clearance_focus",
+                 _p(r"(found|came\s+across|saw|noticed)\s+(your\s+)?(profile|background|resume)"
+                    r".{0,100}(clearance|cleared|ts/?sci|top\s+secret|secret)"
+                    r"|(clearance|cleared\s+background|ts/?sci)"
+                    r".{0,80}(makes?\s+you|perfect\s+(fit|match)|exactly\s+what|stood\s+out|caught\s+(my|our)\s+eye)"),
+                 0.35, "workforce_mapping",
+                 "Cold outreach citing your clearance as the primary qualification. "
+                 "FBI advisory: foreign intelligence entities specifically target clearance "
+                 "holders on professional networking sites. Responding confirms your email "
+                 "belongs to a clearance-eligible person and adds you to a verified "
+                 "cleared-professional contact database."),
+]
+
+
 MASS_EMAIL_BLAST_PATTERNS: list[FraudPattern] = [
     FraudPattern("bulk_email_unsubscribe", _p(
         r"(to\s+unsubscribe\s+from\s+future\s+(emails?|messages?)"
@@ -825,4 +911,5 @@ ALL_PATTERNS: list[FraudPattern] = (
     + OFFER_LETTER_FRAUD_PATTERNS
     + CLEARANCE_HARVEST_PATTERNS
     + MASS_EMAIL_BLAST_PATTERNS
+    + WORKFORCE_MAPPING_PATTERNS
 )

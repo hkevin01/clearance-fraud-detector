@@ -12,6 +12,11 @@ from .analyzers.offer_letter_verifier import OfferLetterAnalysis, verify_offer_l
 from .analyzers.phone_analyzer import PhoneAnalysis, analyze_phone
 from .analyzers.rule_engine import run_rules
 from .analyzers.vishing_analyzer import VishingAnalysis, analyze_vishing
+from .analyzers.workforce_mapping_analyzer import (
+    WorkforceMappingAnalysis,
+    WorkforceMappingVerdict,
+    analyze_workforce_mapping,
+)
 from .parsers.email_parser import EmailDocument, parse_eml_file, parse_eml_string, parse_plain_text
 from .report_generator import IncidentReport, IncidentReportInput, generate_report
 from .scoring.explainer import ExplainerReport, explain_combined, explain_patterns
@@ -169,6 +174,54 @@ class EmailFraudDetector:
             return explain_patterns(pattern_names)
         from .scoring.explainer import explain_categories
         return explain_categories(category_names or [])
+
+    def analyze_workforce_mapping(
+        self,
+        text: str = "",
+        sender: str = "",
+        subject: str = "",
+        contact_channel: str = "email",
+        *,
+        body: str = "",
+    ) -> WorkforceMappingAnalysis:
+        """
+        Analyze a recruiter message for workforce mapping / cleared community
+        profiling patterns documented in the FBI 'Think Before You Link' advisory.
+
+        This is distinct from fraud detection: the message may come from a real
+        company with a real domain yet still serve intelligence collection
+        objectives (mapping active cleared professionals, building resume
+        databases of access history, harvesting social graphs of cleared networks).
+
+        Detects:
+          - Anonymous client + clearance requirement (resume collection risk)
+          - Active clearance status probing vs. standard 'eligible to obtain' language
+          - Classified program/project history fishing before any formal relationship
+          - Pre-screen reference harvesting (social graph expansion)
+          - Cleared employer chain mining (facility/access map collection)
+          - Absence of requisition number for a cleared position
+          - FBI-advisory signals: flattery, scarcity, urgency to move off platform
+          - Contact channel risk (personal email, Telegram, WhatsApp)
+
+        Args:
+            text:            Body text of the message.
+            sender:          Sender email address.
+            subject:         Message subject line.
+            contact_channel: How contact was initiated — one of:
+                             "email" | "linkedin" | "clearancejobs" | "phone" |
+                             "text" | "telegram" | "whatsapp" | "signal"
+            body:            Alias for text (keyword-only).
+
+        Returns:
+            WorkforceMappingAnalysis with risk_score, verdict, collection_vectors,
+            fbi_indicator_matches, recommendations, and is_ci_reportable flag.
+        """
+        return analyze_workforce_mapping(
+            body or text,
+            sender=sender,
+            subject=subject,
+            contact_channel=contact_channel,
+        )
 
     def generate_incident_report(self, inp: IncidentReportInput) -> IncidentReport:
         """
