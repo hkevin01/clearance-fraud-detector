@@ -28,6 +28,9 @@ class FraudScore:
     nlp_findings: NLPFindings = field(default_factory=NLPFindings)
     category_breakdown: dict[str, float] = field(default_factory=dict)
     top_reasons: list[str] = field(default_factory=list)
+    signal_count: int = 0       # number of unique fraud patterns triggered
+    category_count: int = 0     # number of unique fraud categories triggered
+    confidence: str = "LOW"     # HIGH / MEDIUM / LOW — evidence quality, not just score magnitude
 
 
 # Per-category cap prevents any single category from dominating the total score
@@ -98,6 +101,16 @@ def compute_score(
         category_scores["nlp"] = round(nlp_score, 3)
     score += nlp_score
 
+    # --- Legitimacy signal discount ---
+    # When the text contains ≥3 correct process vocabulary terms (eApp, DISS, 32 CFR 117,
+    # written offer, etc.) AND no severe domain findings, reduce score slightly to avoid
+    # flagging emails that are clearly written by people who know the real process.
+    legit_hits = len(nlp_findings.legitimate_keyword_hits)
+    has_severe_domain = any(df.severity == "high" for df in domain_findings)
+    if legit_hits >= 3 and not has_severe_domain and score < 0.70:
+        discount = min((legit_hits - 2) * 0.015, 0.08)  # max 8% discount
+        score = max(0.0, score - discount)
+
     # Clamp to [0, 1]
     total = round(min(score, 1.0), 3)
 
@@ -125,6 +138,16 @@ def compute_score(
     reasons.sort(key=lambda x: x[0], reverse=True)
     top_reasons = [r for _, r in reasons[:10]]
 
+    # --- Signal confidence/diversity ---
+    sig_count = len(rule_matches)
+    cat_count = len({m.category for m in rule_matches} | ({"domain"} if domain_findings else set()))
+    if cat_count >= 3 and total >= 0.45:
+        confidence = "HIGH"
+    elif cat_count >= 2 or (sig_count >= 2 and total >= 0.25):
+        confidence = "MEDIUM"
+    else:
+        confidence = "LOW"
+
     return FraudScore(
         total_score=total,
         verdict=verdict,
@@ -133,4 +156,7 @@ def compute_score(
         nlp_findings=nlp_findings,
         category_breakdown={k: round(v, 3) for k, v in category_scores.items()},
         top_reasons=top_reasons,
+        signal_count=sig_count,
+        category_count=cat_count,
+        confidence=confidence,
     )

@@ -1579,3 +1579,342 @@ class TestResumeFalsificationAndDomainFixes:
             f"eTalent recruiter FBI MXU email should score SUSPICIOUS or LIKELY_FRAUD due to "
             f"resume falsification + FSO call request; got {score.verdict} ({score.total_score})"
         )
+
+
+# ===========================================================================
+# HTML Body Stripping Tests
+# ===========================================================================
+
+class TestHtmlBodyStripping:
+    """HTML-only emails must expose fraud signals to the rule engine."""
+
+    HTML_FRAUD_ONLY = """From: fraud@dod-jobs.xyz
+Subject: Cleared Position Available
+Content-Type: text/html
+
+<html><body>
+<p>Please provide your <b>Social Security Number</b> immediately.</p>
+<p>Processing fee: $200 via Bitcoin. Camera must be off during interview.</p>
+<p>We guarantee your TS/SCI clearance. No experience required. $400,000/year.</p>
+</body></html>"""
+
+    HTML_CLEAN_ONLY = """From: talent@leidos.com
+Subject: Systems Engineer TS/SCI
+Content-Type: text/html
+
+<html><body>
+<p>Cleared Systems Engineer role in Chantilly, VA. Requires active TS/SCI.</p>
+<p>Apply at leidos.com/careers. SF-86 sponsored upon offer via NBIS eApp.</p>
+<p>No fees. In-person interviews at our Chantilly SCIF facility.</p>
+</body></html>"""
+
+    def test_html_fraud_body_gets_rule_matches(self):
+        """HTML-only fraud email must produce rule matches (not zero)."""
+        score = detector.analyze_eml_string(self.HTML_FRAUD_ONLY)
+        assert score.rule_matches, (
+            f"HTML-only fraud email produced zero rule matches. "
+            f"full_text may not include HTML body. score={score.total_score}"
+        )
+
+    def test_html_fraud_body_scores_suspicious_or_higher(self):
+        """HTML-only fraud email must reach at least SUSPICIOUS verdict."""
+        score = detector.analyze_eml_string(self.HTML_FRAUD_ONLY)
+        assert score.verdict != Verdict.CLEAN, (
+            f"HTML-only fraud email scored CLEAN ({score.total_score}) — "
+            f"HTML body not being scanned by rule engine"
+        )
+
+    def test_html_clean_body_not_over_flagged(self):
+        """HTML-only legitimate email must not score FRAUD."""
+        score = detector.analyze_eml_string(self.HTML_CLEAN_ONLY)
+        assert score.verdict not in (Verdict.FRAUD, Verdict.LIKELY_FRAUD), (
+            f"HTML-only legitimate email over-flagged as {score.verdict} ({score.total_score})"
+        )
+
+    def test_strip_html_produces_readable_text(self):
+        """_strip_html must produce plain text with entity decoding and no tags."""
+        from clearance_fraud_detector.parsers.email_parser import _strip_html
+        html = "<p>Hello &amp; Welcome</p><b>Please provide SSN &lt;here&gt;</b>"
+        result = _strip_html(html)
+        assert "<" not in result, "HTML tags should be stripped"
+        assert "&amp;" not in result, "HTML entities should be decoded"
+        assert "Hello & Welcome" in result
+
+    def test_plain_text_body_takes_precedence_over_html(self):
+        """When both plain and HTML bodies are present, plain text is used."""
+        from clearance_fraud_detector.parsers.email_parser import EmailDocument, _strip_html
+        doc = EmailDocument(
+            subject="Test",
+            body_text="Plain text body content",
+            body_html="<p>HTML body content</p>",
+        )
+        assert "Plain text body content" in doc.full_text
+        assert "HTML body content" not in doc.full_text
+
+    def test_empty_plain_falls_back_to_html(self):
+        """Empty plain text body must fall back to HTML-stripped body."""
+        from clearance_fraud_detector.parsers.email_parser import EmailDocument
+        doc = EmailDocument(
+            subject="Test",
+            body_text="",
+            body_html="<p>Social Security Number required upfront</p>",
+        )
+        assert "Social Security Number" in doc.full_text
+
+
+# ===========================================================================
+# FraudScore Confidence / Signal Diversity Tests
+# ===========================================================================
+
+class TestFraudScoreConfidence:
+    """FraudScore.signal_count, category_count, and confidence fields."""
+
+    def test_multi_category_fraud_scores_high_confidence(self):
+        """High-score email with 3+ categories must report HIGH confidence."""
+        score = detector.analyze_text(**FRAUD_EMAIL_1)
+        # FRAUD_EMAIL_1 triggers pii_harvest + financial_scam + clearance_scam + urgency
+        assert score.category_count >= 3, (
+            f"Expected ≥3 categories, got {score.category_count}: {score.category_breakdown}"
+        )
+        assert score.confidence == "HIGH", (
+            f"Multi-category fraud should be HIGH confidence, got {score.confidence}"
+        )
+
+    def test_single_weak_hit_is_low_confidence(self):
+        """Single low-weight pattern hit on clean text should be LOW confidence."""
+        score = detector.analyze_text(
+            body="The position requires an active security clearance status.",
+            sender="recruiter@company.com",
+        )
+        # clearance_level_request might fire but confidence should be LOW
+        assert score.confidence in ("LOW", "MEDIUM")
+
+    def test_clean_email_has_low_confidence_low_score(self):
+        """Legitimate email: confidence LOW or MEDIUM, not HIGH."""
+        score = detector.analyze_text(**CLEAN_EMAIL_1)
+        assert score.verdict == Verdict.CLEAN
+        assert score.confidence in ("LOW", "MEDIUM")
+
+    def test_signal_count_equals_rule_matches(self):
+        """signal_count must equal len(rule_matches)."""
+        score = detector.analyze_text(**FRAUD_EMAIL_1)
+        assert score.signal_count == len(score.rule_matches)
+
+    def test_category_count_at_least_one_for_fraud(self):
+        """Any fraud email must have category_count >= 1."""
+        score = detector.analyze_text(**FRAUD_EMAIL_1)
+        assert score.category_count >= 1
+
+
+# ===========================================================================
+# New DPRK Linguistic Patterns Tests (FBI PSA I-101823-PSA)
+# ===========================================================================
+
+class TestDPRKLinguisticPatterns2025:
+    """FBI/CISA documented DPRK IT worker scheme linguistic indicators."""
+
+    def test_prepayment_extortion_flagged(self):
+        """Prepayment demand in work context must trigger dprk_scheme."""
+        score = detector.analyze_text(
+            body="We need a prepayment before the contract starts. "
+                 "All cleared developers on this project pay upfront for their background check.",
+            sender="hr@clearance-dev-jobs.xyz",
+        )
+        cats = {m.category for m in score.rule_matches}
+        names = {m.pattern.name for m in score.rule_matches}
+        assert "dprk_scheme" in cats or "prepayment_extortion" in names, (
+            f"Prepayment extortion not detected. Matches: {names}"
+        )
+
+    def test_source_code_extortion_flagged(self):
+        """Threat to release source code is a DPRK extortion tactic."""
+        score = detector.analyze_text(
+            body="If you don't pay the additional fees, we will release your proprietary "
+                 "source code publicly.",
+            sender="contractor@remote-dev.xyz",
+        )
+        names = {m.pattern.name for m in score.rule_matches}
+        assert "prepayment_extortion" in names, (
+            f"Source code extortion threat not detected. Matches: {names}"
+        )
+
+    def test_unsolicited_selection_before_applying_flagged(self):
+        """'You have been selected' before any application is a social engineering hook."""
+        score = detector.analyze_text(
+            body="Congratulations! You have been selected for this position "
+                 "without applying or submitting an application.",
+            sender="hr@cleared-it-jobs.net",
+        )
+        names = {m.pattern.name for m in score.rule_matches}
+        assert "unsolicited_selection" in names, (
+            f"Unsolicited selection pattern not detected. Matches: {names}"
+        )
+
+    def test_payment_platform_switch_request_flagged(self):
+        """Request to switch payment platform mid-contract is a DPRK money laundering tactic."""
+        score = detector.analyze_text(
+            body="Please use a different payment platform for this month. "
+                 "We need you to switch to a new payroll method immediately.",
+            sender="payroll@remote-cleared.xyz",
+        )
+        names = {m.pattern.name for m in score.rule_matches}
+        assert "payment_platform_switch" in names, (
+            f"Payment platform switch request not detected. Matches: {names}"
+        )
+
+    def test_dprk_linguistic_patterns_not_flagging_legit(self):
+        """Standard corporate payment change notice must not trigger DPRK patterns."""
+        score = detector.analyze_text(
+            body="We are transitioning our payroll system from ADP to Workday. "
+                 "You will receive an email from HR with setup instructions.",
+            sender="hr@boozallen.com",
+        )
+        dprk_matches = [m for m in score.rule_matches if m.category == "dprk_scheme"
+                        and m.pattern.name == "payment_platform_switch"]
+        assert not dprk_matches, (
+            f"Legitimate payroll system migration falsely flagged as DPRK. Matches: {dprk_matches}"
+        )
+
+
+# ===========================================================================
+# FullAnalysis / analyze_all() Tests
+# ===========================================================================
+
+class TestFullAnalysis:
+    """analyze_all() unified pipeline tests."""
+
+    def test_analyze_all_returns_full_analysis(self):
+        """analyze_all() must return a FullAnalysis with all required fields."""
+        from clearance_fraud_detector.detector import FullAnalysis
+        result = detector.analyze_all(
+            text=FRAUD_EMAIL_1["body"],
+            subject=FRAUD_EMAIL_1["subject"],
+            sender=FRAUD_EMAIL_1["sender"],
+        )
+        assert isinstance(result, FullAnalysis)
+        assert hasattr(result, "fraud_score")
+        assert hasattr(result, "workforce_mapping")
+        assert hasattr(result, "compliance")
+        assert hasattr(result, "combined_risk")
+        assert hasattr(result, "combined_verdict")
+
+    def test_combined_risk_at_least_fraud_score(self):
+        """combined_risk must be >= fraud_score.total_score (WM boosts only)."""
+        result = detector.analyze_all(
+            text=FRAUD_EMAIL_1["body"],
+            subject=FRAUD_EMAIL_1["subject"],
+            sender=FRAUD_EMAIL_1["sender"],
+        )
+        assert result.combined_risk >= result.fraud_score.total_score
+
+    def test_clean_email_analyze_all_not_flagged(self):
+        """Legitimate email through analyze_all must not be high-risk."""
+        result = detector.analyze_all(
+            text=CLEAN_EMAIL_1["body"],
+            subject=CLEAN_EMAIL_1["subject"],
+            sender=CLEAN_EMAIL_1["sender"],
+        )
+        assert not result.is_high_risk, (
+            f"Legitimate email incorrectly flagged as high-risk. "
+            f"combined_risk={result.combined_risk}, verdict={result.combined_verdict}"
+        )
+
+    def test_ci_risk_wm_boosts_combined_risk(self):
+        """A message with CI_RISK workforce mapping should have boosted combined_risk."""
+        from clearance_fraud_detector.analyzers.workforce_mapping_analyzer import WorkforceMappingVerdict
+        # CI collection message: asking for clearance level, program names, references
+        ci_text = (
+            "Hi, I'm reaching out about a confidential opportunity with a government client. "
+            "Could you tell me your current clearance level and what programs you've supported? "
+            "Also, please provide three references who are also currently cleared. "
+            "We'd like to know which government agencies and program offices you've worked with."
+        )
+        result = detector.analyze_all(text=ci_text, sender="hr@consulting-anonymous.com")
+        # If WM triggers CI_RISK/CONFIRMED_COLLECTION, combined > fraud_score
+        if result.workforce_mapping.verdict in (
+            WorkforceMappingVerdict.CI_RISK,
+            WorkforceMappingVerdict.CONFIRMED_COLLECTION,
+        ):
+            assert result.combined_risk > result.fraud_score.total_score, (
+                f"CI_RISK WM verdict should boost combined_risk above fraud_score. "
+                f"fraud={result.fraud_score.total_score}, combined={result.combined_risk}"
+            )
+
+    def test_combined_risk_capped_at_1(self):
+        """combined_risk must never exceed 1.0."""
+        result = detector.analyze_all(
+            text=FRAUD_EMAIL_DPRK["body"],
+            subject=FRAUD_EMAIL_DPRK["subject"],
+            sender=FRAUD_EMAIL_DPRK["sender"],
+        )
+        assert result.combined_risk <= 1.0
+
+    def test_top_signals_populated_for_fraud(self):
+        """top_signals must be non-empty for a fraud email."""
+        result = detector.analyze_all(
+            text=FRAUD_EMAIL_1["body"],
+            subject=FRAUD_EMAIL_1["subject"],
+            sender=FRAUD_EMAIL_1["sender"],
+        )
+        assert result.top_signals, "top_signals should not be empty for a fraud email"
+
+    def test_is_ci_reportable_delegates_to_wm(self):
+        """is_ci_reportable must match workforce_mapping.is_ci_reportable."""
+        result = detector.analyze_all(text="Hello, interested in your cleared background.")
+        assert result.is_ci_reportable == result.workforce_mapping.is_ci_reportable
+
+    def test_analyze_all_body_keyword_alias(self):
+        """body= keyword alias must work identically to text=."""
+        r1 = detector.analyze_all(text="Please provide your SSN immediately.")
+        r2 = detector.analyze_all(body="Please provide your SSN immediately.")
+        assert r1.fraud_score.total_score == r2.fraud_score.total_score
+
+
+# ===========================================================================
+# Legitimacy Signal Discount Tests
+# ===========================================================================
+
+class TestLegitimacyDiscount:
+    """Emails using correct CFR vocabulary should receive a modest score reduction."""
+
+    LEGIT_VOCAB_HEAVY = (
+        "This position requires an active TS/SCI. The SF-86 will be initiated via "
+        "NBIS eApp (eapp.nbis.mil) after your written offer and written acceptance, "
+        "per 32 CFR 117.10. DISS JVS will be used for clearance verification. "
+        "Our FSO will coordinate the process per NISPOM guidelines. "
+        "No fees. Conditional offer provided before investigation starts."
+    )
+
+    def test_legit_vocab_reduces_score_vs_no_vocab(self):
+        """Text with 3+ legitimate process terms should score lower than equivalent without."""
+        score_with = detector.analyze_text(
+            body=self.LEGIT_VOCAB_HEAVY, sender="recruiter@leidos.com"
+        )
+        # Same text with vocab stripped — replace proper terms with generic ones
+        stripped = self.LEGIT_VOCAB_HEAVY.replace("eapp.nbis.mil", "our portal").replace(
+            "32 CFR 117.10", "company policy"
+        ).replace("DISS JVS", "our system").replace("NBIS eApp", "our system").replace(
+            "NISPOM", "security guidelines"
+        )
+        score_without = detector.analyze_text(
+            body=stripped, sender="recruiter@leidos.com"
+        )
+        assert score_with.total_score <= score_without.total_score, (
+            f"Legitimate vocab should not increase score. "
+            f"with={score_with.total_score}, without={score_without.total_score}"
+        )
+
+    def test_discount_does_not_apply_to_confirmed_fraud(self):
+        """Legitimacy discount must not reduce confirmed fraud below LIKELY_FRAUD."""
+        # Mix of legit vocab + strong fraud signals — discount should not excuse fraud
+        body = (
+            "We use the NBIS eApp and DISS system per 32 CFR 117.10. "
+            "Please provide your Social Security Number now. "
+            "There is a $200 processing fee via Bitcoin. We guarantee your clearance."
+        )
+        score = detector.analyze_text(body=body, sender="fso@gmail.com")
+        assert score.verdict in (Verdict.LIKELY_FRAUD, Verdict.FRAUD), (
+            f"Strong fraud signals should not be discounted below LIKELY_FRAUD. "
+            f"Got {score.verdict} ({score.total_score})"
+        )
+

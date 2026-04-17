@@ -176,6 +176,37 @@ DPRK_IT_WORKER_PATTERNS: list[FraudPattern] = [
                  "dprk_scheme", "Requesting I-9 completion before any interview is a PII-harvest tactic"),
     FraudPattern("w4_pre_hire", _p(r"(w.?4\s+(before|prior|first|upfront|immediately)|tax\s+form.{0,30}(before\s+interview|first\s+step))"), 0.80,
                  "dprk_scheme", "Requesting W-4 before hire is premature PII collection"),
+    # --- FBI/CISA PSA I-101823-PSA (Oct 2023) additional indicators ---
+    FraudPattern("prepayment_extortion", _p(
+        r"(prepay(ment)?|advance\s+pay(ment)?|pay\s+upfront).{0,40}(work|project|contract|start)"
+        r"|(repeated|additional)\s+request.{0,20}(pay(ment)?|fund)"
+        r"|threat.{0,30}(release|publish|expose).{0,20}(source\s+code|proprietary|ip)"), 0.90,
+        "dprk_scheme",
+        "Prepayment demands or source-code extortion are documented DPRK IT worker scheme tactics "
+        "(FBI PSA I-101823-PSA, Oct 2023). DPRK workers demand prepayment or threaten IP release."),
+    FraudPattern("unsolicited_selection", _p(
+        r"(you\s+(have\s+been|are|were)\s+(selected|chosen|shortlisted|pre.?approved)"
+        r".{0,60}(interview|position|role|opportunity)"
+        r"|congratulations.{0,40}(selected|chosen|shortlisted).{0,40}(without|before|prior\s+to)\s+"
+        r"(applying|submitting|an?\s+interview|application))"), 0.75,
+        "dprk_scheme",
+        "Unsolicited 'you have been selected' before any application is a social engineering "
+        "hook documented in DPRK IT worker and fake recruiter schemes."),
+    FraudPattern("foreign_university_us_only", _p(
+        r"(universit.{0,20}(china|japan|singapore|malaysia|korea|indonesia|vietnam)"
+        r".{0,200}(employm.{0,20}(united\s+states|us\s+only|american)|us\s+client|american\s+compan))"
+        r"|(education.{0,80}asia.{0,200}work\s+(exclusively|only|primarily).{0,30}(united\s+states|us|american))",
+        re.IGNORECASE | re.DOTALL), 0.70,
+        "dprk_scheme",
+        "Education at Asian universities with work exclusively in the US is a documented DPRK "
+        "IT worker profile indicator (FBI PSA I-101823-PSA)."),
+    FraudPattern("payment_platform_switch", _p(
+        r"(use\s+(different|another|alternate|new)\s+(payment|payroll|platform|method|account)"
+        r"|switch\s+(to|from).{0,30}(payment|platform|payroll|venmo|zelle|cashapp|wire)"
+        r"|change\s+(payment|payroll|account).{0,40}(request|asking|need))"), 0.80,
+        "dprk_scheme",
+        "Requesting payment platform switches mid-contract is a DPRK money laundering evasion "
+        "tactic documented in FBI/CISA AA23-129A."),
 ]
 
 # ---------------------------------------------------------------------------

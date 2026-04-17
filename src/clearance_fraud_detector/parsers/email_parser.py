@@ -3,8 +3,37 @@ Parse raw email files (.eml), plain text, or dict payloads into a unified EmailD
 """
 import email
 import email.policy
+import html as _html_lib
+import re as _re
 from dataclasses import dataclass, field
 from pathlib import Path
+
+
+def _strip_html(html_text: str) -> str:
+    """
+    Convert HTML email body to plain text for rule-engine scanning.
+
+    Removes script/style blocks, converts block elements to newlines,
+    strips remaining tags, and decodes HTML entities. This ensures fraud
+    signals embedded in HTML-only emails are exposed to the regex pattern
+    library rather than being silently ignored.
+    """
+    # Drop script/style blocks entirely — they can't contain actionable fraud text
+    text = _re.sub(
+        r'<(?:script|style)[^>]*>.*?</(?:script|style)>',
+        ' ', html_text, flags=_re.DOTALL | _re.IGNORECASE,
+    )
+    # Replace common block/line elements with newlines to preserve sentence boundaries
+    text = _re.sub(r'<(?:br|p|div|tr|li|h[1-6])[^>]*/?>',
+                   '\n', text, flags=_re.IGNORECASE)
+    # Strip all remaining HTML tags
+    text = _re.sub(r'<[^>]+>', ' ', text)
+    # Decode HTML character entities (&amp; &lt; &#160; etc.)
+    text = _html_lib.unescape(text)
+    # Normalise horizontal whitespace; collapse excessive blank lines
+    text = _re.sub(r'[ \t]+', ' ', text)
+    text = _re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
 
 
 @dataclass
@@ -22,8 +51,16 @@ class EmailDocument:
 
     @property
     def full_text(self) -> str:
-        """Combined subject + body for analysis."""
-        return f"{self.subject}\n{self.body_text}"
+        """
+        Combined subject + body for rule-engine analysis.
+
+        Uses plain-text body when present; falls back to HTML-stripped body so
+        that HTML-only emails are not silently skipped by the pattern library.
+        """
+        body = self.body_text.strip()
+        if not body and self.body_html:
+            body = _strip_html(self.body_html)
+        return f"{self.subject}\n{body}"
 
 
 def _extract_domain(address: str) -> str:
