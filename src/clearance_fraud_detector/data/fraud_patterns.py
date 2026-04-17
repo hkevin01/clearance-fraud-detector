@@ -143,7 +143,7 @@ SALARY_PATTERNS: list[FraudPattern] = [
 # Poor Quality / Grammar Indicators
 # ---------------------------------------------------------------------------
 QUALITY_PATTERNS: list[FraudPattern] = [
-    FraudPattern("excessive_caps", _p(r"[A-Z]{5,}\s+[A-Z]{5,}\s+[A-Z]{5,}"), 0.3,
+    FraudPattern("excessive_caps", _p(r"[A-Z]{5,}\s+[A-Z]{5,}\s+[A-Z]{5,}", re.DOTALL), 0.3,
                  "quality", "Excessive capitalization is a spam/fraud indicator"),
     FraudPattern("multiple_exclamations", _p(r"!{2,}|\?{2,}"), 0.25,
                  "quality", "Multiple exclamation marks suggest spam"),
