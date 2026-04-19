@@ -1277,3 +1277,260 @@ def report_fraud(
         "  Applicant eApp portal (the ONLY authorized SSN submission channel):\n"
         "    https://eapp.nbis.mil\n"
     )
+
+
+# ---------------------------------------------------------------------------
+# Workforce mapping renderer
+# ---------------------------------------------------------------------------
+
+_WM_VERDICT_COLORS = {
+    "CLEAN": "green",
+    "COMMERCIAL_HARVEST": "yellow",
+    "CI_RISK": "red",
+    "CONFIRMED_COLLECTION": "bold red",
+}
+
+_WM_VERDICT_ICONS = {
+    "CLEAN": "✅",
+    "COMMERCIAL_HARVEST": "⚠️",
+    "CI_RISK": "🚨",
+    "CONFIRMED_COLLECTION": "🛑",
+}
+
+_WM_VERDICT_LABELS = {
+    "CLEAN": "CLEAN — No CI collection indicators",
+    "COMMERCIAL_HARVEST": "COMMERCIAL HARVEST — Resume/data collection risk",
+    "CI_RISK": "CI RISK — Likely intelligence collection attempt",
+    "CONFIRMED_COLLECTION": "CONFIRMED CI COLLECTION — Report to FSO immediately",
+}
+
+
+def _print_workforce_report(analysis, source: str = "") -> None:
+    """Print workforce mapping / CI collection analysis results."""
+    v = analysis.verdict.value
+    color = _WM_VERDICT_COLORS.get(v, "white")
+    icon = _WM_VERDICT_ICONS.get(v, "?")
+    label = _WM_VERDICT_LABELS.get(v, v)
+
+    verdict_text = Text(f"{icon}  {label}  (risk: {analysis.risk_score:.3f})", style=f"bold {color}")
+    ci_note = "  ⚑ CI-REPORTABLE to FSO" if analysis.is_ci_reportable else ""
+    console.print(Panel(
+        verdict_text,
+        subtitle=ci_note or None,
+        title=f"[bold]Workforce Mapping / CI Collection Analysis{f': {source}' if source else ''}[/bold]",
+        border_style=color.split()[-1],
+    ))
+
+    if analysis.signals:
+        table = Table(title="Collection Signals Detected", box=box.SIMPLE, show_header=True)
+        table.add_column("Severity", style="bold", min_width=10)
+        table.add_column("Category", style="cyan", min_width=22)
+        table.add_column("Signal", style="white")
+        for sig in sorted(analysis.signals, key=lambda s: s.weight, reverse=True):
+            sev_style = _RISK_COLORS.get(sig.severity, "white")
+            table.add_row(
+                Text(sig.severity.upper(), style=sev_style),
+                sig.category,
+                sig.description,
+            )
+        console.print(table)
+
+        console.print("\n[bold yellow]Signal Details:[/bold yellow]")
+        for i, sig in enumerate(sorted(analysis.signals, key=lambda s: s.weight, reverse=True), 1):
+            sev_style = _RISK_COLORS.get(sig.severity, "white")
+            console.print(f"  {i}. [{sev_style}][{sig.severity.upper()}][/{sev_style}] {sig.description}")
+            if sig.detail:
+                console.print(f"     {sig.detail}")
+
+    if analysis.collection_vectors:
+        console.print("\n[bold red]Collection Vectors:[/bold red]")
+        for vec in analysis.collection_vectors:
+            console.print(f"  • {vec}")
+
+    if analysis.fbi_indicator_matches:
+        console.print("\n[bold red]FBI 'Think Before You Link' Indicators:[/bold red]")
+        for match in analysis.fbi_indicator_matches:
+            console.print(f"  ⚑ {match}")
+
+    if not analysis.has_named_company:
+        console.print("\n[yellow]⚠️  Anonymous client — cleared positions from nameless clients expose you to mapping.[/yellow]")
+    if not analysis.has_requisition:
+        console.print("[yellow]⚠️  No requisition number — real cleared billets have contract-tied req numbers.[/yellow]")
+
+    if analysis.recommendations:
+        console.print("\n[bold cyan]Recommendations:[/bold cyan]")
+        for rec in analysis.recommendations:
+            console.print(f"  → {rec}")
+
+    if analysis.is_ci_reportable:
+        console.print(Panel(
+            Text(
+                "⚑  Report this contact to your FSO (Facility Security Officer).\n"
+                "   SEAD 3 requires reporting suspicious contact from foreign nationals or\n"
+                "   contacts that appear to solicit classified or sensitive information.\n"
+                "   DCSA CI: 571-305-6576 | dcsacounterfraud@mail.mil | dcsa.mil/MC/CI/",
+                style="bold red",
+            ),
+            border_style="red",
+        ))
+
+    console.print()
+
+
+@app.command(name="scan-workforce")
+def scan_workforce(
+    message: str = typer.Argument(
+        ...,
+        help="Recruiter/contact message text, or path to a .txt file",
+    ),
+    sender: str = typer.Option("", "--sender", "-s", help="Sender email address"),
+    subject: str = typer.Option("", "--subject", "-t", help="Message subject line"),
+    channel: str = typer.Option(
+        "email",
+        "--channel", "-c",
+        help="How contact arrived: email, linkedin, clearancejobs, phone, telegram, whatsapp, signal",
+    ),
+):
+    """
+    Analyze a recruiter message for workforce mapping / CI collection patterns.
+
+    This is distinct from fraud detection: the message may come from a real company
+    with a legitimate domain yet still serve intelligence collection objectives —
+    mapping active cleared professionals, building resume databases of program access
+    history, or harvesting the social graph of cleared networks.
+
+    Based on FBI 'Think Before You Link' advisory and DCSA SEAD 3 reporting guidance.
+
+    Examples:
+      fraud-check scan-workforce "What programs have you supported? Who are your cleared references?"
+      fraud-check scan-workforce outreach.txt --sender "recruiter@consulting.com" --channel linkedin
+    """
+    maybe_path = Path(message)
+    if maybe_path.exists() and maybe_path.suffix.lower() in (".txt", ".md", ".log"):
+        message = maybe_path.read_text(encoding="utf-8", errors="replace")
+
+    analysis = detector.analyze_workforce_mapping(
+        message,
+        sender=sender,
+        subject=subject,
+        contact_channel=channel,
+    )
+    _print_workforce_report(analysis, source="workforce mapping scan")
+    raise typer.Exit(1 if analysis.is_ci_reportable else 0)
+
+
+@app.command(name="scan-all")
+def scan_all(
+    message: str = typer.Argument(
+        ...,
+        help="Message body text, or path to a .txt / .eml file",
+    ),
+    subject: str = typer.Option("", "--subject", "-t", help="Message subject"),
+    sender: str = typer.Option("", "--sender", "-s", help="Sender email address"),
+    channel: str = typer.Option(
+        "email",
+        "--channel", "-c",
+        help="Contact channel: email, linkedin, clearancejobs, phone, telegram, whatsapp, signal",
+    ),
+):
+    """
+    Full unified analysis — fraud detection + workforce mapping + NISPOM compliance
+    in a single pass.
+
+    Produces a combined risk score that integrates:
+      • Email fraud signals (rule engine + domain + NLP)
+      • Workforce mapping / CI collection patterns (FBI advisory)
+      • NISPOM §117.10 regulatory compliance violations
+
+    Use this command when you want the complete threat picture for a single message.
+
+    Examples:
+      fraud-check scan-all "Our FSO needs your SSN to verify clearance before we extend an offer."
+      fraud-check scan-all outreach.txt --sender "hr@anonymous.com" --channel linkedin
+      fraud-check scan-all suspicious_email.eml
+    """
+    # Accept .eml files directly
+    maybe_path = Path(message)
+    if maybe_path.exists():
+        if maybe_path.suffix.lower() == ".eml":
+            # For .eml we run all three layers manually and build a FullAnalysis
+            from .analyzers.nispom_compliance import check_compliance as _cc
+            from .analyzers.workforce_mapping_analyzer import analyze_workforce_mapping as _awm
+            from .parsers.email_parser import parse_eml_file as _pef
+            from .detector import FullAnalysis
+            doc = _pef(maybe_path)
+            fraud_score = detector.analyze_document(doc)
+            wm = _awm(doc.full_text, sender=doc.sender, subject=doc.subject, contact_channel=channel)
+            compliance = _cc(doc.full_text)
+            # Reuse analyze_all logic via the detector method
+            result = detector.analyze_all(
+                text=doc.full_text,
+                subject=doc.subject,
+                sender=doc.sender,
+                contact_channel=channel,
+            )
+        elif maybe_path.suffix.lower() in (".txt", ".md", ".log"):
+            message = maybe_path.read_text(encoding="utf-8", errors="replace")
+            result = detector.analyze_all(
+                text=message, subject=subject, sender=sender, contact_channel=channel
+            )
+        else:
+            console.print(f"[red]Unsupported file type: {maybe_path.suffix}[/red]")
+            raise typer.Exit(1)
+    else:
+        result = detector.analyze_all(
+            text=message, subject=subject, sender=sender, contact_channel=channel
+        )
+
+    # ---- Combined risk header ----
+    if result.combined_risk >= 0.70:
+        combined_color, combined_icon = "bold red", "🛑"
+    elif result.combined_risk >= 0.45:
+        combined_color, combined_icon = "red", "🚨"
+    elif result.combined_risk >= 0.20:
+        combined_color, combined_icon = "yellow", "⚠️"
+    else:
+        combined_color, combined_icon = "green", "✅"
+
+    console.print(Panel(
+        Text(
+            f"{combined_icon}  {result.combined_verdict}\n"
+            f"    Combined risk: {result.combined_risk:.3f}  |  "
+            f"Fraud score: {result.fraud_score.total_score:.3f}  |  "
+            f"CI reportable: {'YES ⚑' if result.is_ci_reportable else 'no'}",
+            style=f"bold {combined_color}",
+        ),
+        title="[bold]Unified Threat Analysis — All Layers[/bold]",
+        border_style=combined_color.split()[-1],
+    ))
+
+    # ---- Top signals ----
+    if result.top_signals:
+        console.print("\n[bold yellow]Top Signals Across All Layers:[/bold yellow]")
+        for i, sig in enumerate(result.top_signals, 1):
+            console.print(f"  {i}. {sig}")
+
+    # ---- Fraud score detail ----
+    console.rule("[bold]Layer 1 — Email Fraud Analysis[/bold]")
+    _print_report(result.fraud_score, source="fraud layer")
+
+    # ---- Workforce mapping detail ----
+    console.rule("[bold]Layer 2 — Workforce Mapping / CI Collection[/bold]")
+    _print_workforce_report(result.workforce_mapping, source="CI layer")
+
+    # ---- NISPOM compliance detail ----
+    console.rule("[bold]Layer 3 — NISPOM §117.10 Compliance[/bold]")
+    if result.compliance.has_violations:
+        for i, v in enumerate(result.compliance.violations, 1):
+            sev_color = {"critical": "bold red", "high": "red", "medium": "yellow"}.get(
+                v.severity, "white"
+            )
+            console.print(f"[{sev_color}]  Violation {i}: {v.rule} [{v.severity.upper()}][/{sev_color}]")
+            console.print(f"    {v.what_violated}")
+    else:
+        console.print("[green]  ✅  No NISPOM §117.10 violations detected[/green]")
+
+    console.print()
+    exit_code = 1 if result.is_high_risk or result.is_ci_reportable else 0
+    raise typer.Exit(exit_code)
+
