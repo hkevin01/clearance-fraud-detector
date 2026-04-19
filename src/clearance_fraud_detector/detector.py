@@ -348,10 +348,10 @@ class EmailFraudDetector:
 
         # Aggregate top signals across all layers
         top_signals: list[str] = list(fraud_score.top_reasons[:5])
-        if wm.triggered_signals:
+        if wm.signals:
             top_signals += [
                 f"[workforce_mapping] {s.description}"
-                for s in sorted(wm.triggered_signals, key=lambda s: s.weight, reverse=True)[:3]
+                for s in sorted(wm.signals, key=lambda s: s.weight, reverse=True)[:3]
             ]
         if compliance.violations:
             top_signals += [

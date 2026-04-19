@@ -180,7 +180,8 @@ DPRK_IT_WORKER_PATTERNS: list[FraudPattern] = [
     FraudPattern("prepayment_extortion", _p(
         r"(prepay(ment)?|advance\s+pay(ment)?|pay\s+upfront).{0,40}(work|project|contract|start)"
         r"|(repeated|additional)\s+request.{0,20}(pay(ment)?|fund)"
-        r"|threat.{0,30}(release|publish|expose).{0,20}(source\s+code|proprietary|ip)"), 0.90,
+        r"|threat.{0,30}(release|publish|expose).{0,20}(source\s+code|proprietary|ip)"
+        r"|will\s+(release|expose|publish|leak).{0,50}(source\s+code|proprietary\s+code|your\s+ip|codebase)"), 0.90,
         "dprk_scheme",
         "Prepayment demands or source-code extortion are documented DPRK IT worker scheme tactics "
         "(FBI PSA I-101823-PSA, Oct 2023). DPRK workers demand prepayment or threaten IP release."),
