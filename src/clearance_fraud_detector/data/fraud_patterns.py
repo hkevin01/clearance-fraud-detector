@@ -432,6 +432,136 @@ FAKE_RECRUITER_PATTERNS: list[FraudPattern] = [
 
 
 # ---------------------------------------------------------------------------
+# Process Void / Ghost Employer — No Callback, No Next Steps, No Timeline
+#
+# Real cleared-position recruiting has a defined process: screening → interview
+# → panel → offer → conditional-offer → eApp (SF-86). Every legitimate step
+# comes with a named contact, a phone/email, and a stated decision window.
+# Fake employers, PII harvesters, and resume-database scrapers share a common
+# tell: they request your information and then go dark — no timeline, no named
+# point of contact, no scheduled next step, no decision window.
+#
+# This pattern group detects the linguistic signatures of a process that was
+# never intended to progress beyond the data-collection step.
+#
+# Sources: DCSA FSO training; FBI IC3 cleared-position fraud case files;
+# 32 CFR §117.10 — each legitimate step has a defined FSO-auditable action.
+# ---------------------------------------------------------------------------
+ENGAGEMENT_GHOST_PATTERNS: list[FraudPattern] = [
+    FraudPattern("resume_on_file_harvest", _p(
+        r"(keep\s+(your\s+)?(resume|cv|profile)\s+on\s+file"
+        r"|add\s+(you\s+)?to\s+(our\s+)?(talent\s+(pool|pipeline|database)"
+        r"|database|candidate\s+pool|network)"
+        r"|on\s+file\s+for\s+(future|upcoming|potential)\s+(opportunities?|openings?|positions?)"
+        r"|file\s+(away|your\s+(resume|cv|profile))\s+for\s+future"
+        r"|reach\s+out\s+when\s+(something|an?\s+(opening|position|role|opportunity))\s+"
+        r"(comes?\s+up|opens?|arises?|becomes?\s+available))"), 0.45,
+        "process_void",
+        "No open position — resume harvesting language detected. 'Keep on file' / 'add to "
+        "talent pool' indicates there is no actual open requisition: the message is collecting "
+        "resumes speculatively. Every real cleared DoD/IC position has an active requisition "
+        "tied to a contract task order. A recruiter who cannot cite a specific open req number "
+        "is either mapping your clearance history for future targeting or building a resume "
+        "database — not filling a real billet. Ask for the specific contract number and "
+        "requisition before submitting any information."),
+    FraudPattern("vague_callback_no_date", _p(
+        r"(we[''ll]{1,3}\s+(be\s+in\s+touch|reach\s+out|contact\s+you|get\s+back\s+to\s+you"
+        r"|follow\s+up\s+with\s+you|be\s+reaching\s+out)"
+        r"(?!\s*(within|by|before|in\s+\d|on\s+\w{3,9}day|tomorrow|next\s+week"
+        r"|monday|tuesday|wednesday|thursday|friday|in\s+the\s+next\s+\d))"
+        r"|you[''ll]{1,3}\s+hear\s+(from\s+us|back\s+from\s+us)"
+        r"(?!\s*(within|by|before|in\s+\d|on\s+\w{3,9}day|tomorrow|next\s+week))"
+        r"|will\s+contact\s+you\s+soon"
+        r"|will\s+follow\s+up\s+shortly"
+        r"|will\s+be\s+in\s+contact\s+soon"
+        r"|stay\s+tuned\s+for\s+(updates?|more\s+information|next\s+steps?)"
+        r"|look\s+out\s+for\s+(an?\s+)?email\s+from\s+us)"), 0.35,
+        "process_void",
+        "Vague callback promise with no stated date or window. Legitimate cleared-position "
+        "recruiters always give a specific next-step timeline: 'The hiring manager will call "
+        "within 3 business days' or 'We will schedule a panel interview week of [date].' "
+        "A blanket 'we'll be in touch' with no timeframe indicates either a bulk email blast "
+        "with no real follow-up intent, or a data-collection scheme that was never meant to "
+        "advance past the resume-submission step. Always ask: 'By what date should I expect "
+        "to hear back?' — a legitimate recruiter will have a concrete answer."),
+    FraudPattern("indefinite_opening_wait", _p(
+        r"(when\s+(a\s+)?(suitable\s+)?(position|role|opportunity|opening|billet)"
+        r"\s+(opens?|becomes?\s+available|comes?\s+up|arises?)"
+        r"|if\s+(something|anything)\s+(suitable|matching|relevant|appropriate)"
+        r"\s+(comes?\s+up|opens?|arises?|becomes?\s+available|materializes?)"
+        r"|once\s+(we\s+(have|find|identify)|there\s+(is|are))\s+(a\s+)?"
+        r"(suitable|matching|right)\s+(position|opening|role|opportunity|fit)"
+        r"|if\s+and\s+when\s+(a\s+)?(position|role|opening|opportunity)"
+        r"|contingent\s+on\s+(a\s+)?(position|role|opening|contract)\s+(opening|award|becoming\s+available))"),
+        0.50, "process_void",
+        "No active position — 'when something opens up' language. This confirms there is no "
+        "open requisition attached to this outreach. Cleared billets are contract-funded: they "
+        "exist (or do not exist) the moment a recruiter contacts you. 'When something opens' "
+        "has two possible explanations: (1) the recruiter is speculatively building a resume "
+        "database for future use, or (2) the interaction is a clearance-status mapping probe "
+        "— contact you, establish that you're cleared and on the market, log your program "
+        "history, then file it. Either way, submitting your resume, clearance level, or "
+        "program history under these conditions benefits the recruiter — not you."),
+    FraudPattern("no_contact_us_barrier", _p(
+        r"(please\s+do\s+not\s+(call|contact|email|reach\s+out\s+to)\s+"
+        r"(us|our\s+office|the\s+team|hr|our\s+office)"
+        r"|do\s+not\s+(call|contact|email)\s+(us|our\s+(office|team|hr))"
+        r"|refrain\s+from\s+(contacting|calling|emailing|following\s+up)"
+        r"|we\s+will\s+(contact|reach\s+out|follow\s+up).{0,40}"
+        r"please\s+(do\s+not|don.?t)\s+(call|contact|email|reach\s+out)"
+        r"|no\s+(phone\s+calls?|calls?\s+please|inquiries?)\s*[.,]"
+        r"|phone\s+calls?\s+will\s+not\s+be\s+(accepted|returned|answered))"),
+        0.55, "process_void",
+        "'Do not contact us' — no inbound channel provided. Legitimate cleared-position "
+        "recruiting always includes a named HR contact, a phone number, and a way to follow "
+        "up (often required by the candidate's FSO for reporting purposes). A recruiter who "
+        "blocks all contact and demands you wait passively eliminates your ability to: "
+        "(a) verify the company exists at sam.gov, (b) confirm the recruiter's identity, "
+        "(c) report the contact to your FSO as required by SEAD 3 reporting guidelines. "
+        "This pattern combined with a PII request is a strong ghost-employer indicator."),
+    FraudPattern("submit_wait_no_step", _p(
+        r"(submit\s+(your\s+)?(resume|cv|application|profile|information|details)"
+        r".{0,120}"
+        r"(we\s+will\s+(review|look\s+over|go\s+through|consider)"
+        r"|our\s+team\s+will\s+(review|assess|evaluate)"
+        r"|will\s+be\s+reviewed)"
+        r"(?!.{0,120}(within|by|before|interview|schedule|call|next\s+step|contact\s+you\s+within"
+        r"|in\s+\d|on\s+\w{3,9}day|business\s+days?))"
+        r"|send\s+us\s+your\s+(resume|cv|ssn|application).{0,80}"
+        r"and\s+(we|our\s+team)\s+will\s+(be\s+in\s+touch|follow\s+up|reach\s+out|review)"
+        r"(?!.{0,80}(within|by|in\s+\d|business\s+days?|next\s+step|schedule)))"),
+        0.45, "process_void",
+        "Submit-and-disappear pattern: requests documents/PII with no stated review "
+        "timeline, no next-step action, and no scheduled callback. Every step in a real "
+        "cleared-hiring pipeline has a defined output: a technical screen, a panel interview, "
+        "a conditional offer, an eApp invite. A message that says 'send us your resume and "
+        "we'll review it' with no further process defined is structurally identical to a "
+        "PII-collection form — the process ends when you submit. Ask: 'What is the next "
+        "step after I submit, and by when should I expect a response?'"),
+    FraudPattern("no_named_point_of_contact", _p(
+        r"(if\s+you\s+have\s+(any\s+)?(questions?|concerns?)\s*[,.]?\s*"
+        r"(?:please\s+)?(?:do\s+not\s+hesitate\s+to\s+)?(?:feel\s+free\s+to\s+)?"
+        r"(?:reply\s+to\s+this\s+email|email\s+us|contact\s+us)"
+        r"(?!\s+(?:at|by\s+calling|directly|your\s+)?[a-z][\w.%+-]+@[a-z\d.-]+\.[a-z]{2,})"
+        r"|our\s+(recruiting|hr|talent)\s+(team|department|staff)"
+        r"(?!\s*[:,]\s*[A-Z][a-z]+)"
+        r"(?:.{0,60})(contact|reach|call|email)\s+us"
+        r"(?!\s+at\s+[+\d(]))"
+        r"|(the\s+)?recruiting\s+team\s+will\s+(reach\s+out|contact\s+you|follow\s+up)"
+        r"(?!\s*[,.]?\s*(?:at|from|via)\s*[\w@.+\-]+)"
+        r"(?!.{0,80}(?:call|ext|extension|\d{3}[-.\s]\d{3}[-.\s]\d{4}))"), 0.30,
+        "process_void",
+        "No named contact and no direct phone number provided. Every legitimate cleared "
+        "staffing interaction should have: (a) a named recruiter with verifiable LinkedIn "
+        "profile, (b) a company phone number that can be confirmed at sam.gov or on the "
+        "public DCSA contractor registry, and (c) a direct email at the company domain — "
+        "not a relay or generic inbox. 'The recruiting team will reach out' with no name "
+        "attached prevents you from doing the basic due diligence required before sharing "
+        "any information with an unverified party."),
+]
+
+
+# ---------------------------------------------------------------------------
 # Social Engineering Pressure Tactics
 # Verbal/written tactics used to override a candidate's compliance judgment
 # and coerce SSN/PII submission before a legitimate offer exists.
@@ -1120,6 +1250,7 @@ ALL_PATTERNS: list[FraudPattern] = (
     + BACKGROUND_CHECK_SCAM_PATTERNS
     + FSO_IMPERSONATION_PATTERNS
     + FAKE_RECRUITER_PATTERNS
+    + ENGAGEMENT_GHOST_PATTERNS
     + SOCIAL_ENGINEERING_PATTERNS
     + CAGE_FCL_PATTERNS
     + NISPOM_MISREPRESENTATION_PATTERNS

@@ -1926,3 +1926,171 @@ class TestLegitimacyDiscount:
             f"Got {score.verdict} ({score.total_score})"
         )
 
+
+# ---------------------------------------------------------------------------
+# Process Void / Ghost Employer — No Next Steps, No Callback, No Timeline
+# ---------------------------------------------------------------------------
+
+class TestEngagementGhostPatterns:
+    """
+    Verify that ghost-employer signals (no timeline, no next steps, no contact
+    provided) are detected at the appropriate weight tier.
+    """
+
+    def test_resume_on_file_harvest(self):
+        """'We'll keep your resume on file' should trigger process_void."""
+        score = detector.analyze_text(
+            body="Thanks for reaching out! We'll keep your resume on file and "
+                 "reach out when something comes up.",
+            sender="talent@clearancejobs-staffing.com",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "resume_on_file_harvest" in pattern_names, (
+            f"Expected resume_on_file_harvest, got: {pattern_names}"
+        )
+
+    def test_talent_pool_add(self):
+        """'Add you to our talent pool' should trigger resume_on_file_harvest."""
+        score = detector.analyze_text(
+            body="We don't have an immediate opening but would like to add you to our "
+                 "talent pipeline for future opportunities.",
+            sender="hr@defensetech-staffing.net",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "resume_on_file_harvest" in pattern_names, (
+            f"Expected resume_on_file_harvest, got: {pattern_names}"
+        )
+
+    def test_vague_callback_no_date(self):
+        """'We'll be in touch' with no date triggers vague_callback_no_date."""
+        score = detector.analyze_text(
+            body="Please send your resume and clearance level. We'll be in touch.",
+            sender="recruiter@dod-clearance-jobs.com",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "vague_callback_no_date" in pattern_names, (
+            f"Expected vague_callback_no_date, got: {pattern_names}"
+        )
+
+    def test_vague_callback_with_date_not_flagged(self):
+        """'We'll be in touch within 3 business days' should NOT trigger."""
+        score = detector.analyze_text(
+            body="Thank you for your application. We'll be in touch within 3 business days "
+                 "to schedule a technical screen.",
+            sender="hr@raytheon.com",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "vague_callback_no_date" not in pattern_names, (
+            f"Specific timeline should not flag vague_callback_no_date. Got: {pattern_names}"
+        )
+
+    def test_you_will_hear_from_us_no_date(self):
+        """'You'll hear from us' without a timeframe triggers vague_callback_no_date."""
+        score = detector.analyze_text(
+            body="Submit your resume and we will review it. You'll hear from us.",
+            sender="recruiting@defense-ops-staffing.biz",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "vague_callback_no_date" in pattern_names, (
+            f"Expected vague_callback_no_date, got: {pattern_names}"
+        )
+
+    def test_indefinite_opening_wait(self):
+        """'When a suitable position opens' triggers indefinite_opening_wait."""
+        score = detector.analyze_text(
+            body="We will reach out when a suitable position opens that matches your "
+                 "clearance level and background.",
+            sender="jobs@cleared-talent.xyz",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "indefinite_opening_wait" in pattern_names, (
+            f"Expected indefinite_opening_wait, got: {pattern_names}"
+        )
+
+    def test_contingent_contract_award(self):
+        """'Contingent on a position opening' triggers indefinite_opening_wait."""
+        score = detector.analyze_text(
+            body="This role is contingent on a contract opening. Send your resume now "
+                 "so we are ready when the contract is awarded.",
+            sender="staffing@govops-group.com",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "indefinite_opening_wait" in pattern_names, (
+            f"Expected indefinite_opening_wait, got: {pattern_names}"
+        )
+
+    def test_do_not_contact_us(self):
+        """'Do not contact us' triggers no_contact_us_barrier."""
+        score = detector.analyze_text(
+            body="Please submit your resume. Do not contact our office directly. "
+                 "We will reach out if your background is a match.",
+            sender="hr@securejobs-network.net",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "no_contact_us_barrier" in pattern_names, (
+            f"Expected no_contact_us_barrier, got: {pattern_names}"
+        )
+
+    def test_no_calls_please(self):
+        """'No phone calls, please' triggers no_contact_us_barrier."""
+        score = detector.analyze_text(
+            body="Send your resume and clearance level to this email. No phone calls, please. "
+                 "We'll follow up when we review applications.",
+            sender="careers@clearance-placement-group.com",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "no_contact_us_barrier" in pattern_names, (
+            f"Expected no_contact_us_barrier, got: {pattern_names}"
+        )
+
+    def test_submit_and_disappear(self):
+        """Submit + vague 'we'll review' with no timeline triggers submit_wait_no_step."""
+        score = detector.analyze_text(
+            body="Please send us your resume and our team will review and be in touch.",
+            sender="talent@defense-solutions-group.xyz",
+        )
+        pattern_names = [m.pattern_name for m in score.matched_patterns]
+        assert "submit_wait_no_step" in pattern_names, (
+            f"Expected submit_wait_no_step, got: {pattern_names}"
+        )
+
+    def test_combined_ghost_employer_elevates_score(self):
+        """Multiple ghost-employer signals combined should push score above SUSPICIOUS."""
+        body = (
+            "Hi, we came across your profile and are interested in your background. "
+            "Please send us your resume and clearance level. "
+            "We'll keep your resume on file and reach out when something comes up. "
+            "Please do not contact our office. We'll be in touch."
+        )
+        score = detector.analyze_text(body=body, sender="talent@defense-group.biz")
+        assert score.verdict in (Verdict.SUSPICIOUS, Verdict.LIKELY_FRAUD, Verdict.FRAUD), (
+            f"Combined ghost-employer signals should rate SUSPICIOUS or higher, "
+            f"got {score.verdict} ({score.total_score})"
+        )
+
+    def test_real_recruiter_with_timeline_not_flagged(self):
+        """A recruiter with a specific timeline and next steps should not be flagged."""
+        body = (
+            "Hi Kevin, my name is Sarah and I'm a cleared recruiter at Leidos. "
+            "I'm reaching out about a TS/SCI Software Engineer role on the BATS contract "
+            "(req 12345-B). I'd like to schedule a 20-minute call this week — does "
+            "Tuesday at 2pm ET or Thursday at 10am ET work? "
+            "You'll hear back from me within one business day of submitting your resume. "
+            "You can reach me directly at sarah.jones@leidos.com or 703-555-0100 ext 4421."
+        )
+        score = detector.analyze_text(body=body, sender="sarah.jones@leidos.com")
+        # Should not be flagged as FRAUD or LIKELY_FRAUD
+        assert score.verdict not in (Verdict.FRAUD, Verdict.LIKELY_FRAUD), (
+            f"Legitimate recruiter message with timeline should not flag as fraud. "
+            f"Got {score.verdict} ({score.total_score})"
+        )
+        # Specifically: no ghost-employer patterns should fire
+        ghost_patterns = {
+            "resume_on_file_harvest", "vague_callback_no_date",
+            "indefinite_opening_wait", "no_contact_us_barrier",
+            "submit_wait_no_step",
+        }
+        fired = ghost_patterns & {m.pattern_name for m in score.matched_patterns}
+        assert not fired, f"Ghost patterns should not fire on legitimate recruiter: {fired}"
+
+

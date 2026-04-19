@@ -1,6 +1,6 @@
 """Reference data — fraud patterns, contractor registry, staffing firms, CAGE codes."""
 
-from .fraud_patterns import ALL_PATTERNS, FraudPattern
+from .fraud_patterns import ALL_PATTERNS, FraudPattern, ENGAGEMENT_GHOST_PATTERNS
 from .known_contractors import (
     LEGITIMATE_CONTRACTORS,
     KNOWN_FAKE_RECRUITING_DOMAINS,
@@ -15,6 +15,7 @@ from .cage_codes import CAGE_CODES, DOMAIN_TO_CAGE, lookup_cage, lookup_by_domai
 __all__ = [
     "ALL_PATTERNS",
     "FraudPattern",
+    "ENGAGEMENT_GHOST_PATTERNS",
     "LEGITIMATE_CONTRACTORS",
     "KNOWN_FAKE_RECRUITING_DOMAINS",
     "LEGITIMATE_JOB_BOARDS",
