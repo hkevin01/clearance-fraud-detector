@@ -1,10 +1,49 @@
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Python bytecode
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Build / distribution
 *.egg-info/
 dist/
+build/
+*.whl
+
+# Test / coverage
 .pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Linters / formatters
 .ruff_cache/
+.mypy_cache/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Logs
 *.log
+
+# Sample data (potentially sensitive)
 data/samples/*.eml
+data/samples/*.msg
