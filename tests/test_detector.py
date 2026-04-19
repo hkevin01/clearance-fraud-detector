@@ -1944,9 +1944,9 @@ class TestEngagementGhostPatterns:
                  "reach out when something comes up.",
             sender="talent@clearancejobs-staffing.com",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "resume_on_file_harvest" in pattern_names, (
-            f"Expected resume_on_file_harvest, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "resume_on_file_harvest" in rule_patterns, (
+            f"Expected resume_on_file_harvest, got: {rule_patterns}"
         )
 
     def test_talent_pool_add(self):
@@ -1956,9 +1956,9 @@ class TestEngagementGhostPatterns:
                  "talent pipeline for future opportunities.",
             sender="hr@defensetech-staffing.net",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "resume_on_file_harvest" in pattern_names, (
-            f"Expected resume_on_file_harvest, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "resume_on_file_harvest" in rule_patterns, (
+            f"Expected resume_on_file_harvest, got: {rule_patterns}"
         )
 
     def test_vague_callback_no_date(self):
@@ -1967,9 +1967,9 @@ class TestEngagementGhostPatterns:
             body="Please send your resume and clearance level. We'll be in touch.",
             sender="recruiter@dod-clearance-jobs.com",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "vague_callback_no_date" in pattern_names, (
-            f"Expected vague_callback_no_date, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "vague_callback_no_date" in rule_patterns, (
+            f"Expected vague_callback_no_date, got: {rule_patterns}"
         )
 
     def test_vague_callback_with_date_not_flagged(self):
@@ -1979,9 +1979,9 @@ class TestEngagementGhostPatterns:
                  "to schedule a technical screen.",
             sender="hr@raytheon.com",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "vague_callback_no_date" not in pattern_names, (
-            f"Specific timeline should not flag vague_callback_no_date. Got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "vague_callback_no_date" not in rule_patterns, (
+            f"Specific timeline should not flag vague_callback_no_date. Got: {rule_patterns}"
         )
 
     def test_you_will_hear_from_us_no_date(self):
@@ -1990,9 +1990,9 @@ class TestEngagementGhostPatterns:
             body="Submit your resume and we will review it. You'll hear from us.",
             sender="recruiting@defense-ops-staffing.biz",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "vague_callback_no_date" in pattern_names, (
-            f"Expected vague_callback_no_date, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "vague_callback_no_date" in rule_patterns, (
+            f"Expected vague_callback_no_date, got: {rule_patterns}"
         )
 
     def test_indefinite_opening_wait(self):
@@ -2002,9 +2002,9 @@ class TestEngagementGhostPatterns:
                  "clearance level and background.",
             sender="jobs@cleared-talent.xyz",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "indefinite_opening_wait" in pattern_names, (
-            f"Expected indefinite_opening_wait, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "indefinite_opening_wait" in rule_patterns, (
+            f"Expected indefinite_opening_wait, got: {rule_patterns}"
         )
 
     def test_contingent_contract_award(self):
@@ -2014,9 +2014,9 @@ class TestEngagementGhostPatterns:
                  "so we are ready when the contract is awarded.",
             sender="staffing@govops-group.com",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "indefinite_opening_wait" in pattern_names, (
-            f"Expected indefinite_opening_wait, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "indefinite_opening_wait" in rule_patterns, (
+            f"Expected indefinite_opening_wait, got: {rule_patterns}"
         )
 
     def test_do_not_contact_us(self):
@@ -2026,9 +2026,9 @@ class TestEngagementGhostPatterns:
                  "We will reach out if your background is a match.",
             sender="hr@securejobs-network.net",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "no_contact_us_barrier" in pattern_names, (
-            f"Expected no_contact_us_barrier, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "no_contact_us_barrier" in rule_patterns, (
+            f"Expected no_contact_us_barrier, got: {rule_patterns}"
         )
 
     def test_no_calls_please(self):
@@ -2038,9 +2038,9 @@ class TestEngagementGhostPatterns:
                  "We'll follow up when we review applications.",
             sender="careers@clearance-placement-group.com",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "no_contact_us_barrier" in pattern_names, (
-            f"Expected no_contact_us_barrier, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "no_contact_us_barrier" in rule_patterns, (
+            f"Expected no_contact_us_barrier, got: {rule_patterns}"
         )
 
     def test_submit_and_disappear(self):
@@ -2049,9 +2049,9 @@ class TestEngagementGhostPatterns:
             body="Please send us your resume and our team will review and be in touch.",
             sender="talent@defense-solutions-group.xyz",
         )
-        pattern_names = [m.pattern_name for m in score.matched_patterns]
-        assert "submit_wait_no_step" in pattern_names, (
-            f"Expected submit_wait_no_step, got: {pattern_names}"
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "submit_wait_no_step" in rule_patterns, (
+            f"Expected submit_wait_no_step, got: {rule_patterns}"
         )
 
     def test_combined_ghost_employer_elevates_score(self):
@@ -2079,18 +2079,16 @@ class TestEngagementGhostPatterns:
             "You can reach me directly at sarah.jones@leidos.com or 703-555-0100 ext 4421."
         )
         score = detector.analyze_text(body=body, sender="sarah.jones@leidos.com")
-        # Should not be flagged as FRAUD or LIKELY_FRAUD
         assert score.verdict not in (Verdict.FRAUD, Verdict.LIKELY_FRAUD), (
             f"Legitimate recruiter message with timeline should not flag as fraud. "
             f"Got {score.verdict} ({score.total_score})"
         )
-        # Specifically: no ghost-employer patterns should fire
         ghost_patterns = {
             "resume_on_file_harvest", "vague_callback_no_date",
             "indefinite_opening_wait", "no_contact_us_barrier",
             "submit_wait_no_step",
         }
-        fired = ghost_patterns & {m.pattern_name for m in score.matched_patterns}
+        fired = ghost_patterns & {m.pattern.name for m in score.rule_matches}
         assert not fired, f"Ghost patterns should not fire on legitimate recruiter: {fired}"
 
 
