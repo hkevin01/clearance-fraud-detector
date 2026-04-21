@@ -2092,3 +2092,129 @@ class TestEngagementGhostPatterns:
         assert not fired, f"Ghost patterns should not fire on legitimate recruiter: {fired}"
 
 
+# ---------------------------------------------------------------------------
+# Staffing-firm PII intake form patterns (E-Talent Network / TSCTI email type)
+# ---------------------------------------------------------------------------
+
+class TestStaffingFirmIntakePatterns:
+    """
+    Patterns triggered by the classic staffing-firm cold-contact cleared-job email:
+    bulk PII intake form, criminal history prescreen, competing-offers probe,
+    exclusive sourcing claim, and anonymous cleared client.
+    Based on real email from Jatin Narang / E-Talent Network, April 2026.
+    """
+
+    # The verbatim intake section from the real email
+    INTAKE_BODY = (
+        "Kindly share your updated resume at jatinn@etalentnetwork.com\n"
+        "Full Legal Name:\n"
+        "Phone No(s).\n"
+        "Current Location (City and State)\n"
+        "Work Authorization Status:\n"
+        "Best time and the best no. to call you at:\n"
+        "Availability to start on the assignment if you are hired:\n"
+        "Willing to relocate at its own, if required? (Y/N):\n"
+        "How many interviews and offer in pipeline:\n"
+        "Any misdemeanor or felony in past 7 years ? Y/N\n"
+        "Rate Expectations:\n"
+        "Client: An aerospace & defense client\n"
+        "We are the sole agency that does recruitment sourcing for 22nd Century Technologies.\n"
+        "Active Secret Clearance Required.\n"
+    )
+
+    def test_bulk_pii_intake_form_fires(self):
+        """Full Legal Name: / Phone No: / Work Authorization Status: form triggers bulk_pii_intake_form."""
+        score = detector.analyze_text(body=self.INTAKE_BODY, sender="jatinn@etalentnetwork.com")
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "bulk_pii_intake_form" in rule_patterns, (
+            f"Expected bulk_pii_intake_form, got: {rule_patterns}"
+        )
+
+    def test_criminal_history_prescreen_fires(self):
+        """'Any misdemeanor or felony in past 7 years' triggers criminal_history_prescreen."""
+        score = detector.analyze_text(
+            body="Any misdemeanor or felony in past 7 years ? Y/N",
+            sender="hr@staffing-group.net",
+        )
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "criminal_history_prescreen" in rule_patterns, (
+            f"Expected criminal_history_prescreen, got: {rule_patterns}"
+        )
+
+    def test_competing_offers_probe_fires(self):
+        """'How many interviews and offer in pipeline' triggers competing_offers_intel_probe."""
+        score = detector.analyze_text(
+            body="How many interviews and offer in pipeline:\nRate Expectations:",
+            sender="recruiter@cleared-staffing.biz",
+        )
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "competing_offers_intel_probe" in rule_patterns, (
+            f"Expected competing_offers_intel_probe, got: {rule_patterns}"
+        )
+
+    def test_exclusive_sourcing_claim_fires(self):
+        """'Sole agency that does recruitment sourcing for' triggers exclusive_sourcing_authority_claim."""
+        score = detector.analyze_text(
+            body="We are the sole agency that does recruitment sourcing for 22nd Century Technologies.",
+            sender="jatinn@etalentnetwork.com",
+        )
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "exclusive_sourcing_authority_claim" in rule_patterns, (
+            f"Expected exclusive_sourcing_authority_claim, got: {rule_patterns}"
+        )
+
+    def test_anonymous_cleared_client_fires(self):
+        """'Client: An aerospace & defense client' triggers anonymous_cleared_client."""
+        score = detector.analyze_text(
+            body="Client: An aerospace & defense client\nActive Secret Clearance Required.",
+            sender="staffing@etalentnetwork.com",
+        )
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "anonymous_cleared_client" in rule_patterns, (
+            f"Expected anonymous_cleared_client, got: {rule_patterns}"
+        )
+
+    def test_anonymous_client_variants(self):
+        """Various anonymous client phrasings all trigger the pattern."""
+        variants = [
+            "Client: An aerospace & defense client",
+            "Client: A federal client — Active Secret required.",
+            "Our federal client requires an active clearance.",
+            "Company: Confidential — active TS/SCI required.",
+        ]
+        for text in variants:
+            score = detector.analyze_text(body=text, sender="hr@staffing.biz")
+            rule_patterns = {m.pattern.name for m in score.rule_matches}
+            assert "anonymous_cleared_client" in rule_patterns, (
+                f"Variant did not trigger anonymous_cleared_client: {text!r} | got: {rule_patterns}"
+            )
+
+    def test_named_client_not_flagged(self):
+        """A named prime contractor does NOT trigger anonymous_cleared_client."""
+        score = detector.analyze_text(
+            body="Client: Raytheon Technologies\nActive Secret Clearance Required.\n"
+                 "Requisition: RTX-2026-00412",
+            sender="recruiter@raytheon.com",
+        )
+        rule_patterns = {m.pattern.name for m in score.rule_matches}
+        assert "anonymous_cleared_client" not in rule_patterns, (
+            f"Named client should not trigger anonymous_cleared_client: {rule_patterns}"
+        )
+
+    def test_full_etalen_email_scores_fraud(self):
+        """The complete E-Talent Network email pattern should score LIKELY_FRAUD or FRAUD."""
+        score = detector.analyze_text(
+            body=self.INTAKE_BODY,
+            subject="Software Integration Engineer - 15027864",
+            sender="jatinn@etalentnetwork.com",
+        )
+        assert score.verdict in (Verdict.LIKELY_FRAUD, Verdict.FRAUD), (
+            f"E-Talent Network intake email should score LIKELY_FRAUD or FRAUD, "
+            f"got {score.verdict} ({score.total_score:.3f})"
+        )
+        # Must catch at least 5 distinct signals
+        assert score.signal_count >= 5, (
+            f"Expected at least 5 signals, got {score.signal_count}"
+        )
+
+

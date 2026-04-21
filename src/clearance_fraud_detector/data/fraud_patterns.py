@@ -428,6 +428,65 @@ FAKE_RECRUITER_PATTERNS: list[FraudPattern] = [
         "contractor (FBI, DoD, IC) is a 18 U.S.C. §1001 false statement risk and can "
         "jeopardize an existing clearance during adjudication. A legitimate recruiter "
         "submits what you provide — they do not ghost-write federal contractor resume fraud."),
+    FraudPattern("bulk_pii_intake_form", _p(
+        r"(full\s+legal\s+name\s*[:\-]\s*$"
+        r"|phone\s+no\.?\s*[:\-]\s*$"
+        r"|work\s+authorization\s+status\s*[:\-]\s*$"
+        r"|current\s+location.{0,25}city.{0,15}state.{0,5}\s*[:\-]\s*$"
+        r"|availability\s+to\s+start.{0,40}[:\-]\s*$"
+        r"|willing\s+to\s+relocate.{0,30}[:\-]"
+        r"|rate\s+expectations?\s*[:\-]\s*$"
+        r"|best\s+time.{0,30}(call|contact|reach).{0,30}[:\-]\s*$)",
+        re.IGNORECASE | re.MULTILINE), 0.60,
+        "fake_recruiter",
+        "Bulk PII intake form embedded in the email: fields for full legal name, phone, "
+        "work authorization, location, availability, relocation willingness, and rate "
+        "expectations — all collected before any interview or offer. Legitimate recruiters "
+        "gather some of this data verbally during a screen call; sending a structured form "
+        "in a cold-contact email is a PII harvesting technique used to build cleared-professional "
+        "contact databases without ever filling an actual position."),
+    FraudPattern("criminal_history_prescreen", _p(
+        r"(any\s+(misdemeanor|felony|criminal\s+(record|history|conviction))"
+        r"|misdemeanor\s+or\s+felony\s+(in\s+)?(past|last)\s+\d+\s+years?"
+        r"|felony\s+(conviction|charge).{0,30}(past|last)\s+\d+"
+        r"|criminal\s+background.{0,40}(past|last)\s+\d+\s+years?)"),
+        0.55, "fake_recruiter",
+        "Criminal history question at initial recruiter contact, before any offer exists. "
+        "Background check authorization (including criminal history) is only conducted "
+        "post-conditional-offer, under FCRA rules, via an authorized PBSA-accredited "
+        "background screening vendor — not in a cold-contact email form. Collecting this "
+        "data in a pre-screen form violates EEOC guidance on criminal history inquiries "
+        "and is a red flag for non-compliant or fraudulent hiring operations."),
+    FraudPattern("competing_offers_intel_probe", _p(
+        r"(how\s+many\s+(interviews?\s+(and\s+)?)?offers?\s+(in\s+)?pipeline"
+        r"|interviews?\s+(and\s+)?offers?\s+in\s+pipeline"
+        r"|other\s+(offers?|interviews?)\s+(pending|in\s+(process|pipeline))"
+        r"|currently\s+(interviewing|in\s+process)\s+(with|for|at).{0,40}(other|another)"
+        r"|competing\s+(offers?|opportunities?)\s+you\s+(have|are\s+considering)"
+        r"|what\s+other\s+(offers?|positions?|roles?|opportunities?)\s+(are\s+you|do\s+you\s+have))"),
+        0.50, "fake_recruiter",
+        "Competitor intelligence probe: asking how many other interviews or offers are in "
+        "your pipeline at initial recruiter contact. Legitimate recruiters may ask this "
+        "near the offer stage to calibrate a competitive offer — not in a cold-contact "
+        "intake form. At the pre-screen stage, this is market intelligence collection: the "
+        "recruiter learns which companies are hiring cleared candidates and how long their "
+        "hiring cycles are. This data is useful to staffing firms regardless of whether "
+        "you get the job, and is a hallmark of resume-database-building operations."),
+    FraudPattern("exclusive_sourcing_authority_claim", _p(
+        r"(sole\s+(agency|provider|recruiter|source|vendor|partner).{0,80}"
+        r"(recruit|sourc|hir|staffing)"
+        r"|exclusive.{0,30}(recruiter|agency|staffing|source|partner).{0,80}"
+        r"(for|to|of).{0,40}(recruit|sourc|hir)"
+        r"|only\s+(agency|firm|company|recruiter).{0,60}(recruit|source|hire|staffing))"),
+        0.45, "fake_recruiter",
+        "Exclusive/sole-agency authority claim: asserting the firm is the only recruiter "
+        "authorized to place candidates with the target company. This framing is a pressure "
+        "tactic designed to prevent you from applying directly or through other channels. "
+        "In reality, most prime defense contractors post positions on their own careers page "
+        "and on multiple platforms simultaneously. An 'exclusivity' claim from a staffing "
+        "intermediary has no legal force and cannot be verified. When combined with an "
+        "unnamed client and a PII intake form, it is a strong indicator of either a "
+        "fraudulent listing or a resume-harvesting operation."),
 ]
 
 
@@ -965,6 +1024,25 @@ PRE_SCREEN_CLEARANCE_FORM_PATTERNS: list[FraudPattern] = [
                  "previous clearance) in a single recruiter email or form. This structured "
                  "data aggregation mirrors DISS JVS fields — accessible only to credentialed "
                  "FSOs, not recruiters. No pre-offer collection of this data is authorized."),
+    FraudPattern("anonymous_cleared_client", _p(
+        r"(client\s*[:\-]\s*(an?\s+)?(aerospace|defense|government|federal|dod|military)"
+        r"(\s+(and|&|/|\s)\s*(defense|government|aerospace|military|technology|tech|contractor))?"
+        r"\s+client"
+        r"|our\s+(aerospace|defense|government|federal|dod|military)(\s+(and|&)\s+(defense|government|aerospace))?"
+        r"\s+client"
+        r"|confidential\s+(client|company).{0,60}(clearance|cleared|secret|ts.?sci)"
+        r"|hiring\s+company\s*[:\-]\s*confidential"
+        r"|company\s*[:\-]\s*confidential.{0,40}(clearance|cleared|secret|ts.?sci))"),
+        0.55, "pre_screen_form",
+        "Anonymous client for a cleared position: the hiring company is described only as "
+        "'an aerospace & defense client' or 'confidential client' rather than named. "
+        "Every real cleared billet is tied to a specific FCL-holding prime contractor — "
+        "the company name is not secret. Anonymous-client postings prevent you from: "
+        "(a) verifying the company holds an FCL at sam.gov, "
+        "(b) confirming the position exists on the company's own careers page, "
+        "(c) reporting the contact to your FSO with an identified entity as required by SEAD 3. "
+        "Staffing firms use anonymous-client language to prevent direct applications and to "
+        "protect their placement fee — it is not a security requirement."),
 ]
 
 # ---------------------------------------------------------------------------
