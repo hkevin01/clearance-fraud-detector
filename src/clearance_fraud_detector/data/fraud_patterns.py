@@ -36,7 +36,7 @@ PII_PATTERNS: list[FraudPattern] = [
                  "pii_harvest", "Requests banking info in initial contact"),
     FraudPattern("passport_request", _p(r"(passport\s+number|copy\s+of\s+(your\s+)?passport)"), 0.85,
                  "pii_harvest", "Requests passport details before employment"),
-    FraudPattern("dob_request", _p(r"(date\s+of\s+birth|birth\s+date|d\.?o\.?b\.?)"), 0.6,
+    FraudPattern("dob_request", _p(r"(date\s+of\s+birth|birth\s+date|\bd\.?o\.?b\.?\b)"), 0.6,
                  "pii_harvest",
                  "DOB requested in recruiter/job email. DOB is legitimately collected during "
                  "the SF-86 (eApp) process post-offer. A recruiter requesting DOB at the "
