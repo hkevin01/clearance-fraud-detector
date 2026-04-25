@@ -12,8 +12,8 @@
 [![Repo Size](https://img.shields.io/github/repo-size/hkevin01/clearance-fraud-detector?style=flat-square)](https://github.com/hkevin01/clearance-fraud-detector)
 [![Issues](https://img.shields.io/github/issues/hkevin01/clearance-fraud-detector?style=flat-square)](https://github.com/hkevin01/clearance-fraud-detector/issues)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square&logo=python)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-259%20passing-brightgreen?style=flat-square&logo=pytest)](tests/)
-[![Patterns](https://img.shields.io/badge/detection%20rules-87%20patterns-orange?style=flat-square)](src/clearance_fraud_detector/data/fraud_patterns.py)
+[![Tests](https://img.shields.io/badge/tests-460%20passing-brightgreen?style=flat-square&logo=pytest)](tests/)
+[![Patterns](https://img.shields.io/badge/detection%20rules-147%20patterns-orange?style=flat-square)](src/clearance_fraud_detector/data/fraud_patterns.py)
 [![Version](https://img.shields.io/badge/version-0.2.0-blue?style=flat-square)](pyproject.toml)
 
 </div>
@@ -64,7 +64,7 @@ The tool addresses a specific, high-stakes threat landscape: adversaries — inc
 
 | Icon | Feature | Description | Status |
 |------|---------|-------------|--------|
-| 📧 | **Email Analysis** | Scans `.eml` files or raw text against 82 detection rules across 16 fraud categories | ✅ Stable |
+| 📧 | **Email Analysis** | Scans `.eml` files or raw text against 147 detection rules across 27 fraud categories | ✅ Stable |
 | 📞 | **Vishing / AI Voice Detection** | Analyzes call transcripts for AI-generated voice indicators, camera-off interviews, DPRK scheme signals | ✅ Stable |
 | 📋 | **Job Posting Analysis** | Flags impossible salaries, PII-in-application, fake platforms, DPRK laptop-farm patterns | ✅ Stable |
 | 🕵️ | **FSO / Recruiter Contact Analysis** | Distinguishes fake FSO SSN exploitation from fake recruiter PII harvest — different threat models | ✅ Stable |
@@ -163,7 +163,7 @@ flowchart TD
 | Component | File | Responsibility |
 |-----------|------|----------------|
 | `EmailFraudDetector` | `detector.py` | Top-level API — orchestrates all analyzers |
-| `RuleEngine` | `analyzers/rule_engine.py` | Applies 87 weighted regex patterns; returns `RuleMatch` list |
+| `RuleEngine` | `analyzers/rule_engine.py` | Applies 147 weighted regex patterns; returns `RuleMatch` list |
 | `DomainAnalyzer` | `analyzers/domain_analyzer.py` | WHOIS, MX records, TLD extraction, typosquat detection |
 | `NLPAnalyzer` | `analyzers/nlp_analyzer.py` | Keyword density, URL extraction, legitimate vocab scoring |
 | `ContactAnalyzer` | `analyzers/contact_analyzer.py` | FSO vs recruiter threat model; DISS process awareness |
@@ -230,23 +230,34 @@ mindmap
 ```
 
 ```mermaid
-pie title Detection Rules by Fraud Category (82 total)
-  "PII Harvesting" : 5
-  "DPRK IT Worker Scheme" : 9
-  "AI Voice / Vishing" : 7
+pie title Detection Rules by Fraud Category (147 total)
+  "PII Harvest" : 5
+  "DPRK Scheme" : 13
+  "Vishing/AI Voice" : 7
   "Financial Scams" : 6
-  "FSO Impersonation" : 6
+  "FSO Impersonation" : 8
   "Identity Theft" : 7
-  "Fake Recruiter" : 3
-  "Fake Platform / Domain" : 6
-  "AI-Generated Content" : 4
-  "Background Manipulation" : 4
-  "Urgency / Pressure" : 4
-  "Communication Red Flags" : 5
-  "Salary Bait" : 4
-  "Clearance Scams" : 5
+  "Fake Recruiter" : 8
+  "Fake Platform" : 6
+  "AI-Generated" : 4
+  "Background Scam" : 4
+  "Urgency/Pressure" : 4
+  "Communication" : 5
+  "Salary Bait" : 3
+  "Clearance Scam" : 5
   "Impersonation" : 4
-  "Quality Signals" : 3
+  "Quality Signals" : 4
+  "Social Engineering" : 7
+  "CAGE/FCL Evasion" : 4
+  "NISPOM Misrep" : 5
+  "Offer Letter Fraud" : 5
+  "Clearance Harvest" : 7
+  "Credential Harvest" : 3
+  "Mass Email Blast" : 4
+  "Pre-Screen Form" : 4
+  "Foreign Front" : 4
+  "Process Void/Ghost" : 6
+  "Workforce Mapping" : 5
 ```
 
 <p align="right">(<a href="#top">back to top ↑</a>)</p>
@@ -424,6 +435,97 @@ fraud-check demo
 
 ---
 
+## Pattern Reference
+
+The detector uses **147 weighted regex patterns** organized into **27 threat categories**. Each pattern is assigned a weight (0.0–1.0) based on fraud severity and false-positive risk.
+
+### Core Threat Categories
+
+#### 🔴 High-Severity Patterns (0.70–1.00 weight)
+
+| Category | Pattern Count | Key Indicators | Example Trigger |
+|----------|---------------|---|---|
+| **PII Harvest** | 5 | SSN request pre-offer, clearance level query, bank account info, passport request, DOB in application | "Please provide your Social Security Number for the clearance lookup" |
+| **DPRK Scheme** | 13 | Camera off, laptop forwarding, salary forwarding, concurrent jobs, identity concealment, resume submission timing | "FedEx the laptop to this address in Singapore" |
+| **Identity Theft** | 7 | Crypto redirect, SIM swap, bank credential capture, tax ID theft | "Verify your banking credentials to complete onboarding" |
+| **Offer Letter Fraud** | 5 | SSN field on offer, offer conditioned on SSN, free email domain, missing address | "Sign this offer letter and provide your SSN to finalize" |
+| **FSO Impersonation** | 8 | Fake DISS access claims, clearance suspension threat, DCSA cold contact, shared credentials demand | "Your clearance will be revoked unless you verify your SSN immediately" |
+
+#### 🟠 Medium-Severity Patterns (0.40–0.70 weight)
+
+| Category | Pattern Count | Key Indicators | Example Trigger |
+|----------|---------------|---|---|
+| **Fake Recruiter** | 8 | Bulk PII intake form, criminal history prescreen (pre-offer), competing offers probe, anonymous cleared client | "Confidential aerospace & defense client seeking TS/SCI contractor" |
+| **AI-Generated Content** | 4 | AI writing patterns, AI voice interview claims, deepfake warnings | "This video interview will use AI voice synthesis" |
+| **Fake Platform** | 6 | LinkedIn phishing pages, fake ClearanceJobs link, job board redirect | "Click here to apply on our secure portal: clr-jobs-apply.io" |
+| **Financial Scams** | 6 | Processing fees, clearance application fees, gift card payment, wire transfer | "Non-refundable processing fee: $200" |
+| **Background Scam** | 4 | FCRA timing violations, SSN collection timing, pre-offer background check | "We'll run your background check before making an offer" |
+| **Clearance Scam** | 5 | Guaranteed clearance, fast-track hiring, remote TS/SCI work | "We guarantee TS/SCI clearance within 2 weeks" |
+
+#### 🟡 Medium-Low Patterns (0.25–0.50 weight)
+
+| Category | Pattern Count | Key Indicators | Example Trigger |
+|----------|---------------|---|---|
+| **Process Void/Ghost Employer** | 6 | "Resume on file" harvest, vague callback dates, indefinite job wait, no contact barrier, submit & disappear, no named contact | "We'll keep your resume on file for future opportunities" |
+| **Urgency/Pressure** | 4 | Immediate response demanded, scarcity claim, decision deadline | "You have 24 hours to accept this offer" |
+| **Communication Red Flags** | 5 | Personal email for government work, WhatsApp-only contact, offshore interview, no company name | "Contact me on WhatsApp: +855..." |
+| **Workforce Mapping** | 5 | Program history probe, clearance status mapping, competitor intel collection, salary intel gathering, employment timeline | "What programs have you worked on in the last 5 years?" |
+| **Vishing/AI Voice** | 7 | Fake interview call, no follow-up documentation, AI voice detection, camera-off requirement | "Join the video call but keep your camera off for security" |
+
+#### 🟢 Lower-Severity Patterns (0.25–0.45 weight)
+
+| Category | Pattern Count | Key Indicators | Example Trigger |
+|----------|---------------|---|---|
+| **Salary Bait** | 3 | Unrealistic salary ($300K+), work-from-home for TS/SCI, no-experience-required | "TS/SCI Remote: $400K + benefits, no experience needed" |
+| **Impersonation** | 4 | Domain mismatch, IC agency false claims, government impersonation | "From: NSA Recruitment Team <nsa-recruit@nsarecruit.com>" |
+| **Credential Harvest** | 3 | Fake login portal, government credentials phishing, DISS impersonation | "Visit https://diss-access.contractor.io to update your profile" |
+| **NISPOM Misrepresentation** | 5 | False claims about NISPOM procedures, eApp misrepresentation, timeline fabrication | "You can start before your background check completes" |
+| **Clearance Harvest** | 7 | History extraction, certification request, CAC/PIV request before offer | "Send us a copy of your TS/SCI certificate to verify clearance" |
+| **CAGE/FCL Evasion** | 4 | Non-FCL contractor recruiting, FCL compliance bypass, Facility Clearance false claims | "We're a cleared facility but don't have FCL on file yet" |
+| **Foreign Front** | 4 | Visa sponsorship scam, OPT extension guarantee, visa transfer promise | "We guarantee H-1B sponsorship within 30 days" |
+| **Social Engineering** | 7 | Pressure tactics, deadline urgency, competitive pressure, manipulation | "Everyone else accepted already — you'll miss out" |
+| **Pre-Screen Form** | 4 | Legal name + passport fields, clearance history multi-field form, anonymous client use | "Complete this pre-screen form with full legal name and passport number" |
+| **Mass Email Blast** | 4 | Bulk unsubscribe, click-here tracking, clearance status fishing, bulk TS/SCI blast | "Cleared professionals: click here to update your profile" |
+| **Quality Signals** | 4 | Excessive caps, multiple exclamations, generic greeting, premature congratulations | "CONGRATULATIONS!!! You've been pre-selected for our EXCLUSIVE TS/SCI opportunity!!!" |
+
+### How Patterns Feed the Scoring System
+
+```mermaid
+flowchart LR
+    A["Pattern Match\nfound in text"] --> B["Assign Weight\n(0.0-1.0)"]
+    B --> C["Sum by Category"]
+    C --> D["Cap at 0.35\nper category"]
+    D --> E["Add Domain\nPenalty"]
+    E --> F["Add NLP\nSignals"]
+    F --> G["Apply Legitimacy\nDiscount"]
+    G --> H["Compute Score\n0.0-1.0"]
+    H --> I["Map to Verdict"]
+    I --> J["HIGH/MEDIUM/LOW\nConfidence"]
+```
+
+**Scoring Algorithm:**
+- Each matching pattern contributes its weight to its category score
+- Category scores are capped at **0.35** to prevent single-category dominance
+- Domain analyzer penalty (0.40 max) added for: spoofed domains, personal email for gov work, typosquatted sites
+- NLP analyzer bonus (0.25 max) added for: keyword density, legitimacy vocabulary, URL extraction
+- Legitimacy discount applied if 3+ legit-vocab hits AND no domain issues AND total < 0.70
+- Final score normalized to 0.0–1.0 range
+
+**Verdict Thresholds:**
+- **CLEAN**: < 0.20
+- **SUSPICIOUS**: 0.20–0.45
+- **LIKELY_FRAUD**: 0.45–0.70
+- **FRAUD**: ≥ 0.70
+
+**Confidence Levels:**
+- **HIGH**: 3+ categories triggered AND total score ≥ 0.45
+- **MEDIUM**: 2+ categories triggered OR (2+ signals AND total ≥ 0.25)
+- **LOW**: Otherwise
+
+<p align="right">(<a href="#top">back to top ↑</a>)</p>
+
+---
+
 ## Scoring System
 
 ```mermaid
@@ -509,6 +611,9 @@ fraud-check --help
 
 # 5. Run tests
 pytest tests/ -v
+
+# 6. Run full validation (tests + smoke checks)
+bash scripts/run_validation.sh
 # Expected: 259 passed
 ```
 
@@ -554,10 +659,14 @@ clearance-fraud-detector/
 ├── data/
 │   └── samples/                    # 5 sample interaction files for testing
 ├── tests/
-│   ├── test_detector.py            # 70 tests across 11 test classes
-│   ├── test_nispom_compliance.py   # 38 tests (8 classes) — §117.10 rules
-│   ├── test_process_validator.py   # 17 tests — hiring sequence validation
-│   ├── test_company_verifier.py    # 27 tests — CAGE + domain verification
+│   ├── test_detector.py            # core detector behavior and pattern coverage
+│   ├── test_cli_integration.py     # CLI end-to-end command integration tests
+│   ├── test_validation_smoke.py    # deterministic smoke tests for verdict/exit-code contracts
+│   ├── test_nispom_compliance.py   # NISPOM §117.10 compliance checks
+│   ├── test_process_validator.py   # hiring sequence validation
+│   ├── test_company_verifier.py    # CAGE + domain verification
+├── scripts/
+│   └── run_validation.sh           # one-command validation run for local and CI use
 │   ├── test_report_generator.py    # 22 tests — incident report generation
 │   ├── test_explainer.py           # 44 tests — CFR citation mapper
 │   ├── test_offer_letter.py        # 24 tests — offer letter fraud detection
