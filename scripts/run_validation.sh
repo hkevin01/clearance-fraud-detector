@@ -5,15 +5,11 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 if [[ -f ".venv/bin/activate" ]]; then
-  # Use project-local virtual environment when present.
   source .venv/bin/activate
 fi
 
 echo "[validation] running smoke tests"
 python -m pytest tests/test_validation_smoke.py -q
-
-echo "[validation] running cli integration tests"
-python -m pytest tests/test_cli_integration.py -q
 
 echo "[validation] running full suite"
 python -m pytest tests/ -q

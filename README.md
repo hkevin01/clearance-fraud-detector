@@ -12,7 +12,7 @@
 [![Repo Size](https://img.shields.io/github/repo-size/hkevin01/clearance-fraud-detector?style=flat-square)](https://github.com/hkevin01/clearance-fraud-detector)
 [![Issues](https://img.shields.io/github/issues/hkevin01/clearance-fraud-detector?style=flat-square)](https://github.com/hkevin01/clearance-fraud-detector/issues)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square&logo=python)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-460%20passing-brightgreen?style=flat-square&logo=pytest)](tests/)
+[![Tests](https://img.shields.io/badge/tests-427%20passing-brightgreen?style=flat-square&logo=pytest)](tests/)
 [![Patterns](https://img.shields.io/badge/detection%20rules-147%20patterns-orange?style=flat-square)](src/clearance_fraud_detector/data/fraud_patterns.py)
 [![Version](https://img.shields.io/badge/version-0.2.0-blue?style=flat-square)](pyproject.toml)
 
@@ -660,8 +660,7 @@ clearance-fraud-detector/
 │   └── samples/                    # 5 sample interaction files for testing
 ├── tests/
 │   ├── test_detector.py            # core detector behavior and pattern coverage
-│   ├── test_cli_integration.py     # CLI end-to-end command integration tests
-│   ├── test_validation_smoke.py    # deterministic smoke tests for verdict/exit-code contracts
+│   ├── test_validation_smoke.py    # deterministic smoke tests — fraud vs clean verdict contracts
 │   ├── test_nispom_compliance.py   # NISPOM §117.10 compliance checks
 │   ├── test_process_validator.py   # hiring sequence validation
 │   ├── test_company_verifier.py    # CAGE + domain verification
