@@ -52,56 +52,61 @@ This project is currently a prototype decision-support layer. It does not replac
 
 ### What Already Exists (Official FBI/CJIS Capabilities)
 
-| Existing FBI/CJIS System | What It Already Does Well | Current Operational Focus |
+| <sub>Existing FBI/CJIS System</sub> | <sub>What It Already Does Well</sub> | <sub>Current Operational Focus</sub> |
 |---|---|---|
-| IC3 (Internet Crime Complaint Center) | Public intake for cyber-enabled crime; analyzes and disseminates reports for investigative/intelligence use | Public reporting and trend visibility |
-| tips.fbi.gov (Electronic Tip Form) | Public federal crime and terrorism tip intake with Privacy Act framework | General public tip submission |
-| CJIS Division | National criminal justice data hub serving law enforcement, national security partners, and public services | Data infrastructure and partner services |
-| NCIC (via CJIS/LEEP) | Nationwide, near-real-time law-enforcement query/record system; officer-safety critical | Operational law-enforcement records access |
-| LEEP | Secure portal for law-enforcement/intelligence collaboration tools and case support services | Federated law-enforcement collaboration |
-| eGuardian (hosted on LEEP) | Suspicious Activity Reporting (SAR) sharing and fusion-center/JTTF workflow support | Counterterrorism information sharing |
-| UCR/NIBRS Program | National crime-statistics collection and publication | Statistical reporting and analysis |
-| CJIS Security Policy Resource Center | Security baseline (policy and controls) for handling criminal justice information | Compliance and security governance |
+| <sub>IC3 (Internet Crime Complaint Center)</sub> | <sub>Public intake for cyber-enabled crime; analyzes and disseminates reports for investigative/intelligence use</sub> | <sub>Public reporting and trend visibility</sub> |
+| <sub>tips.fbi.gov (Electronic Tip Form)</sub> | <sub>Public federal crime and terrorism tip intake with Privacy Act framework</sub> | <sub>General public tip submission</sub> |
+| <sub>CJIS Division</sub> | <sub>National criminal justice data hub serving law enforcement, national security partners, and public services</sub> | <sub>Data infrastructure and partner services</sub> |
+| <sub>NCIC (via CJIS/LEEP)</sub> | <sub>Nationwide, near-real-time law-enforcement query/record system; officer-safety critical</sub> | <sub>Operational law-enforcement records access</sub> |
+| <sub>LEEP</sub> | <sub>Secure portal for law-enforcement/intelligence collaboration tools and case support services</sub> | <sub>Federated law-enforcement collaboration</sub> |
+| <sub>eGuardian (hosted on LEEP)</sub> | <sub>Suspicious Activity Reporting (SAR) sharing and fusion-center/JTTF workflow support</sub> | <sub>Counterterrorism information sharing</sub> |
+| <sub>UCR/NIBRS Program</sub> | <sub>National crime-statistics collection and publication</sub> | <sub>Statistical reporting and analysis</sub> |
+| <sub>CJIS Security Policy Resource Center</sub> | <sub>Security baseline (policy and controls) for handling criminal justice information</sub> | <sub>Compliance and security governance</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### Where This Prototype Adds Value
 
-| Gap Before Official Intake | What Clearance Fraud Detector Adds | Who Benefits |
+| <sub>Gap Before Official Intake</sub> | <sub>What Clearance Fraud Detector Adds</sub> | <sub>Who Benefits</sub> |
 |---|---|---|
-| Victims are unsure whether contact is legitimate before reporting | Structured pre-intake fraud scoring for clearance-themed scams (fake FSO/recruiter, PII harvesting, offer-letter abuse, DPRK IT-worker signals) | Public users, recruiters, cleared candidates |
-| Reports often arrive with incomplete context | Normalized evidence extraction (sender/domain, phone, indicators, rationale, recommended escalation package) | FBI/IC3 analysts, fusion/support staff |
-| Mixed quality of early triage across organizations | Repeatable rules + consistent severity banding to prioritize likely fraud faster | Federal/state/local partner workflows |
-| Users do not know where to report first | Built-in routing guidance to the right agency path (IC3/FBI/DCSA/FTC etc.) based on fraud pattern | Public users and security teams |
-| Public-facing language is hard to operationalize | Human-readable explanations translated into actionable checklist steps | Victims and help-desk/frontline teams |
+| <sub>Victims are unsure whether contact is legitimate before reporting</sub> | <sub>Structured pre-intake fraud scoring for clearance-themed scams (fake FSO/recruiter, PII harvesting, offer-letter abuse, DPRK IT-worker signals)</sub> | <sub>Public users, recruiters, cleared candidates</sub> |
+| <sub>Reports often arrive with incomplete context</sub> | <sub>Normalized evidence extraction (sender/domain, phone, indicators, rationale, recommended escalation package)</sub> | <sub>FBI/IC3 analysts, fusion/support staff</sub> |
+| <sub>Mixed quality of early triage across organizations</sub> | <sub>Repeatable rules + consistent severity banding to prioritize likely fraud faster</sub> | <sub>Federal/state/local partner workflows</sub> |
+| <sub>Users do not know where to report first</sub> | <sub>Built-in routing guidance to the right agency path (IC3/FBI/DCSA/FTC etc.) based on fraud pattern</sub> | <sub>Public users and security teams</sub> |
+| <sub>Public-facing language is hard to operationalize</sub> | <sub>Human-readable explanations translated into actionable checklist steps</sub> | <sub>Victims and help-desk/frontline teams</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### Capability Matrix (Requested Format)
 
-| Capability | Federal Agencies | This Tool | What It Is | Why It's Needed |
+| <sub>Capability</sub> | <sub>Federal Agencies</sub> | <sub>This Tool</sub> | <sub>What It Is</sub> | <sub>Why It's Needed</sub> |
 |---|---|---|---|---|
-| Cyber-enabled fraud intake | FBI IC3, FBI tip line, partner LE agencies | Pre-intake scam screening and evidence packaging | A local analysis pass that scores suspected scam content and structures key indicators before formal submission | Improves report quality and reduces ambiguity so official intake receives clearer, actionable context |
-| Clearance-specific threat triage | FBI, DCSA, agency security offices, fusion/JTTF support workflows | Domain-specific detection for fake FSO/recruiter patterns | A ruleset tuned to cleared-workforce scam patterns (PII coercion, fake compliance asks, process misuse) | Generic spam tools miss clearance-process abuse; this closes that gap upstream |
-| Cross-agency reporting path guidance | IC3, FBI field offices/tips, DCSA counter-fraud, FTC and other civilian channels | Context-based recommended reporting path | A routing layer that suggests where to report first based on observed fraud pattern | Victims often delay or report to the wrong channel; routing improves speed and handoff quality |
-| Early triage consistency | Federal, state, local law-enforcement partner ecosystems | Deterministic scoring + severity bands | A repeatable framework to classify likely risk level and summarize top reasons | Reduces analyst-to-analyst variance in early assessment and supports prioritization |
-| Victim-safe operational guidance | Public-facing FBI safety ecosystem and agency help desks | Plain-language protective action checklist | Human-readable next steps for preserving evidence, limiting harm, and escalating safely | Converts technical findings into immediate actions users can follow without specialized training |
+| <sub>Cyber-enabled fraud intake</sub> | <sub>FBI IC3, FBI tip line, partner LE agencies</sub> | <sub>Pre-intake scam screening and evidence packaging</sub> | <sub>A local analysis pass that scores suspected scam content and structures key indicators before formal submission</sub> | <sub>Improves report quality and reduces ambiguity so official intake receives clearer, actionable context</sub> |
+| <sub>Clearance-specific threat triage</sub> | <sub>FBI, DCSA, agency security offices, fusion/JTTF support workflows</sub> | <sub>Domain-specific detection for fake FSO/recruiter patterns</sub> | <sub>A ruleset tuned to cleared-workforce scam patterns (PII coercion, fake compliance asks, process misuse)</sub> | <sub>Generic spam tools miss clearance-process abuse; this closes that gap upstream</sub> |
+| <sub>Cross-agency reporting path guidance</sub> | <sub>IC3, FBI field offices/tips, DCSA counter-fraud, FTC and other civilian channels</sub> | <sub>Context-based recommended reporting path</sub> | <sub>A routing layer that suggests where to report first based on observed fraud pattern</sub> | <sub>Victims often delay or report to the wrong channel; routing improves speed and handoff quality</sub> |
+| <sub>Early triage consistency</sub> | <sub>Federal, state, local law-enforcement partner ecosystems</sub> | <sub>Deterministic scoring + severity bands</sub> | <sub>A repeatable framework to classify likely risk level and summarize top reasons</sub> | <sub>Reduces analyst-to-analyst variance in early assessment and supports prioritization</sub> |
+| <sub>Victim-safe operational guidance</sub> | <sub>Public-facing FBI safety ecosystem and agency help desks</sub> | <sub>Plain-language protective action checklist</sub> | <sub>Human-readable next steps for preserving evidence, limiting harm, and escalating safely</sub> | <sub>Converts technical findings into immediate actions users can follow without specialized training</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> | <sub>—</sub> |
 
 ### Integration Concept (Engineering Into Existing Flow)
 
-| Current State | Near-Term Integration Step | Result |
+| <sub>Current State</sub> | <sub>Near-Term Integration Step</sub> | <sub>Result</sub> |
 |---|---|---|
-| Standalone prototype analyzer | Package as API/microservice with JSON output schema for intake systems | Machine-ingestible pre-triage artifact |
-| Manual analyst review of free-form text | Add adapter to ingest portal/tip payloads and return risk profile + extracted entities | Faster first-pass triage |
-| No common pre-screen rubric across partner teams | Deploy deterministic ruleset profile for clearance-fraud category | More consistent triage decisions |
-| Separate public guidance and law-enforcement evidence prep | Generate dual output: victim-safe instructions + investigator-ready indicator summary | Better user outcomes and cleaner handoffs |
-| Ad hoc feedback loop | Add analyst feedback capture to tune weights/pattern precision over time | Continuous model/rule improvement |
+| <sub>Standalone prototype analyzer</sub> | <sub>Package as API/microservice with JSON output schema for intake systems</sub> | <sub>Machine-ingestible pre-triage artifact</sub> |
+| <sub>Manual analyst review of free-form text</sub> | <sub>Add adapter to ingest portal/tip payloads and return risk profile + extracted entities</sub> | <sub>Faster first-pass triage</sub> |
+| <sub>No common pre-screen rubric across partner teams</sub> | <sub>Deploy deterministic ruleset profile for clearance-fraud category</sub> | <sub>More consistent triage decisions</sub> |
+| <sub>Separate public guidance and law-enforcement evidence prep</sub> | <sub>Generate dual output: victim-safe instructions + investigator-ready indicator summary</sub> | <sub>Better user outcomes and cleaner handoffs</sub> |
+| <sub>Ad hoc feedback loop</sub> | <sub>Add analyst feedback capture to tune weights/pattern precision over time</sub> | <sub>Continuous model/rule improvement</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### Delivery Status (Now vs Next)
 
-| Workstream | Status Today | What This Tool Can Add Next |
+| <sub>Workstream</sub> | <sub>Status Today</sub> | <sub>What This Tool Can Add Next</sub> |
 |---|---|---|
-| Pre-intake scam detection | Prototype complete (rule/NLP/domain/contact scoring) | Hardened service endpoints, authz, rate limits |
-| Public user guidance | Present | Context-aware guided reporting wizard |
-| Law-enforcement handoff quality | Partial | Standardized exchange format and partner integration adapters |
-| Compliance posture | Baseline references included | Formal CJIS-aligned security controls, audit logging, and ATO-ready documentation |
-| Multi-agency utility | Candidate capability | Role-specific views for public, recruiter/FSO, and federal analyst personas |
+| <sub>Pre-intake scam detection</sub> | <sub>Prototype complete (rule/NLP/domain/contact scoring)</sub> | <sub>Hardened service endpoints, authz, rate limits</sub> |
+| <sub>Public user guidance</sub> | <sub>Present</sub> | <sub>Context-aware guided reporting wizard</sub> |
+| <sub>Law-enforcement handoff quality</sub> | <sub>Partial</sub> | <sub>Standardized exchange format and partner integration adapters</sub> |
+| <sub>Compliance posture</sub> | <sub>Baseline references included</sub> | <sub>Formal CJIS-aligned security controls, audit logging, and ATO-ready documentation</sub> |
+| <sub>Multi-agency utility</sub> | <sub>Candidate capability</sub> | <sub>Role-specific views for public, recruiter/FSO, and federal analyst personas</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 **Bottom line:** FBI/CJIS systems already provide the authoritative intake, records, and investigative infrastructure. This project contributes an upstream fraud-specialized triage and evidence-normalization layer that can reduce noise and improve signal quality before cases enter those official channels.
 
@@ -126,20 +131,21 @@ The tool addresses a specific, high-stakes threat landscape: adversaries — inc
 
 ## Key Features
 
-| Icon | Feature | Description | Status |
+| <sub>Icon</sub> | <sub>Feature</sub> | <sub>Description</sub> | <sub>Status</sub> |
 |------|---------|-------------|--------|
-| 📧 | **Email Analysis** | Scans `.eml` files or raw text against 147 detection rules across 27 fraud categories | ✅ Stable |
-| 📞 | **Vishing / AI Voice Detection** | Analyzes call transcripts for AI-generated voice indicators, camera-off interviews, DPRK scheme signals | ✅ Stable |
-| 📋 | **Job Posting Analysis** | Flags impossible salaries, PII-in-application, fake platforms, DPRK laptop-farm patterns | ✅ Stable |
-| 🕵️ | **FSO / Recruiter Contact Analysis** | Distinguishes fake FSO SSN exploitation from fake recruiter PII harvest — different threat models | ✅ Stable |
-| 📱 | **Phone Number Verification** | Validates numbers against published cleared-firm directories; flags VoIP, geographic mismatch, pre-offer SSN calls | ✅ Stable |
-| 🏢 | **Company Verification** | Cross-references SAM.gov UEI, CAGE codes, GSA contracts, and known domains against verified contractor registry | ✅ Stable |
-| 📊 | **Fraud Reporting Database** | 16+ official reporting agencies with phone/URL/email, prioritized by fraud type; DCSA OIG, FBI IC3, FTC, SSA OIG | ✅ Stable |
-| 🔍 | **Domain Spoofing Detection** | Catches typosquatted contractor domains, fake .gov/.mil, personal-email-for-DoD-jobs | ✅ Stable |
-| ⚖️ | **NISPOM §117.10 Compliance Check** | Maps interaction text to specific 32 CFR subsections with verbatim rule text, severity, and recommended action | ✅ Stable |
-| 📄 | **Offer Letter Verification** | Detects SSN fields on offer letters, offers conditioned on SSN, free email domains, missing CAGE/address | ✅ Stable |
-| 📖 | **Violation Explainer** | Translates detected patterns to verbatim CFR text + correct process + word-for-word response script | ✅ Stable |
-| 📝 | **Incident Report Generator** | Produces DCSA/FBI-ready incident reports in plain text or Markdown | ✅ Stable |
+| <sub>📧</sub> | <sub>**Email Analysis**</sub> | <sub>Scans `.eml` files or raw text against 147 detection rules across 27 fraud categories</sub> | <sub>✅ Stable</sub> |
+| <sub>📞</sub> | <sub>**Vishing / AI Voice Detection**</sub> | <sub>Analyzes call transcripts for AI-generated voice indicators, camera-off interviews, DPRK scheme signals</sub> | <sub>✅ Stable</sub> |
+| <sub>📋</sub> | <sub>**Job Posting Analysis**</sub> | <sub>Flags impossible salaries, PII-in-application, fake platforms, DPRK laptop-farm patterns</sub> | <sub>✅ Stable</sub> |
+| <sub>🕵️</sub> | <sub>**FSO / Recruiter Contact Analysis**</sub> | <sub>Distinguishes fake FSO SSN exploitation from fake recruiter PII harvest — different threat models</sub> | <sub>✅ Stable</sub> |
+| <sub>📱</sub> | <sub>**Phone Number Verification**</sub> | <sub>Validates numbers against published cleared-firm directories; flags VoIP, geographic mismatch, pre-offer SSN calls</sub> | <sub>✅ Stable</sub> |
+| <sub>🏢</sub> | <sub>**Company Verification**</sub> | <sub>Cross-references SAM.gov UEI, CAGE codes, GSA contracts, and known domains against verified contractor registry</sub> | <sub>✅ Stable</sub> |
+| <sub>📊</sub> | <sub>**Fraud Reporting Database**</sub> | <sub>16+ official reporting agencies with phone/URL/email, prioritized by fraud type; DCSA OIG, FBI IC3, FTC, SSA OIG</sub> | <sub>✅ Stable</sub> |
+| <sub>🔍</sub> | <sub>**Domain Spoofing Detection**</sub> | <sub>Catches typosquatted contractor domains, fake .gov/.mil, personal-email-for-DoD-jobs</sub> | <sub>✅ Stable</sub> |
+| <sub>⚖️</sub> | <sub>**NISPOM §117.10 Compliance Check**</sub> | <sub>Maps interaction text to specific 32 CFR subsections with verbatim rule text, severity, and recommended action</sub> | <sub>✅ Stable</sub> |
+| <sub>📄</sub> | <sub>**Offer Letter Verification**</sub> | <sub>Detects SSN fields on offer letters, offers conditioned on SSN, free email domains, missing CAGE/address</sub> | <sub>✅ Stable</sub> |
+| <sub>📖</sub> | <sub>**Violation Explainer**</sub> | <sub>Translates detected patterns to verbatim CFR text + correct process + word-for-word response script</sub> | <sub>✅ Stable</sub> |
+| <sub>📝</sub> | <sub>**Incident Report Generator**</sub> | <sub>Produces DCSA/FBI-ready incident reports in plain text or Markdown</sub> | <sub>✅ Stable</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 **Standout capabilities:**
 - Understands the DCSA eApp/DISS process — knows that a real FSO accesses DISS via their own credentials and any SSN in the system is already on file from a prior investigation; an FSO **never** cold-solicits your SSN as a "lookup trigger"
@@ -224,22 +230,23 @@ flowchart TD
 
 ### Component Responsibilities
 
-| Component | File | Responsibility |
+| <sub>Component</sub> | <sub>File</sub> | <sub>Responsibility</sub> |
 |-----------|------|----------------|
-| `EmailFraudDetector` | `detector.py` | Top-level API — orchestrates all analyzers |
-| `RuleEngine` | `analyzers/rule_engine.py` | Applies 147 weighted regex patterns; returns `RuleMatch` list |
-| `DomainAnalyzer` | `analyzers/domain_analyzer.py` | WHOIS, MX records, TLD extraction, typosquat detection |
-| `NLPAnalyzer` | `analyzers/nlp_analyzer.py` | Keyword density, URL extraction, legitimate vocab scoring |
-| `ContactAnalyzer` | `analyzers/contact_analyzer.py` | FSO vs recruiter threat model; DISS process awareness |
-| `PhoneAnalyzer` | `analyzers/phone_analyzer.py` | E.164 normalization, carrier lookup, VoIP detection |
-| `NispomsComplianceChecker` | `analyzers/nispom_compliance.py` | Maps interaction text → 32 CFR §117.10 violations with verbatim rule text |
-| `ProcessValidator` | `analyzers/process_validator.py` | Validates 6-step legal hiring sequence against NISPOM |
-| `CompanyVerifier` | `analyzers/company_verifier.py` | CAGE code format + contractor lookup + interaction text fraud scan |
-| `OfferLetterVerifier` | `analyzers/offer_letter_verifier.py` | Detects fake offer letters used for SSN harvest |
-| `ViolationExplainer` | `scoring/explainer.py` | Maps pattern/category names → verbatim CFR citations + response scripts |
-| `ReportGenerator` | `report_generator.py` | DCSA/FBI-ready incident report generation (plain text + Markdown) |
-| `FraudScorer` | `scoring/scorer.py` | Aggregates findings → normalized 0.0–1.0 score + Verdict |
-| `CLI` | `cli.py` | Typer commands + Rich terminal rendering (13 commands) |
+| <sub>`EmailFraudDetector`</sub> | <sub>`detector.py`</sub> | <sub>Top-level API — orchestrates all analyzers</sub> |
+| <sub>`RuleEngine`</sub> | <sub>`analyzers/rule_engine.py`</sub> | <sub>Applies 147 weighted regex patterns; returns `RuleMatch` list</sub> |
+| <sub>`DomainAnalyzer`</sub> | <sub>`analyzers/domain_analyzer.py`</sub> | <sub>WHOIS, MX records, TLD extraction, typosquat detection</sub> |
+| <sub>`NLPAnalyzer`</sub> | <sub>`analyzers/nlp_analyzer.py`</sub> | <sub>Keyword density, URL extraction, legitimate vocab scoring</sub> |
+| <sub>`ContactAnalyzer`</sub> | <sub>`analyzers/contact_analyzer.py`</sub> | <sub>FSO vs recruiter threat model; DISS process awareness</sub> |
+| <sub>`PhoneAnalyzer`</sub> | <sub>`analyzers/phone_analyzer.py`</sub> | <sub>E.164 normalization, carrier lookup, VoIP detection</sub> |
+| <sub>`NispomsComplianceChecker`</sub> | <sub>`analyzers/nispom_compliance.py`</sub> | <sub>Maps interaction text → 32 CFR §117.10 violations with verbatim rule text</sub> |
+| <sub>`ProcessValidator`</sub> | <sub>`analyzers/process_validator.py`</sub> | <sub>Validates 6-step legal hiring sequence against NISPOM</sub> |
+| <sub>`CompanyVerifier`</sub> | <sub>`analyzers/company_verifier.py`</sub> | <sub>CAGE code format + contractor lookup + interaction text fraud scan</sub> |
+| <sub>`OfferLetterVerifier`</sub> | <sub>`analyzers/offer_letter_verifier.py`</sub> | <sub>Detects fake offer letters used for SSN harvest</sub> |
+| <sub>`ViolationExplainer`</sub> | <sub>`scoring/explainer.py`</sub> | <sub>Maps pattern/category names → verbatim CFR citations + response scripts</sub> |
+| <sub>`ReportGenerator`</sub> | <sub>`report_generator.py`</sub> | <sub>DCSA/FBI-ready incident report generation (plain text + Markdown)</sub> |
+| <sub>`FraudScorer`</sub> | <sub>`scoring/scorer.py`</sub> | <sub>Aggregates findings → normalized 0.0–1.0 score + Verdict</sub> |
+| <sub>`CLI`</sub> | <sub>`cli.py`</sub> | <sub>Typer commands + Rich terminal rendering (13 commands)</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 <p align="right">(<a href="#top">back to top ↑</a>)</p>
 
@@ -477,21 +484,22 @@ fraud-check demo
 <details>
 <summary>📋 All Available Commands</summary>
 
-| Command | Description | Key Options |
+| <sub>Command</sub> | <sub>Description</sub> | <sub>Key Options</sub> |
 |---------|-------------|-------------|
-| `fraud-check scan <file.eml>` | Analyze a `.eml` email file | — |
-| `fraud-check scan-text <body>` | Analyze raw email body | `--subject`, `--sender` |
-| `fraud-check scan-call <transcript>` | Analyze call transcript / interview notes | file path accepted |
-| `fraud-check scan-job <posting>` | Analyze a job posting | file path accepted |
-| `fraud-check scan-contact <message>` | Analyze FSO or recruiter contact | file path accepted |
-| `fraud-check scan-number <number>` | Check a phone number | `--company`, `--region`, `--ssn-requested`, `--pre-offer` |
-| `fraud-check verify-company <name>` | Look up company in verified registry | `--contacts` |
-| `fraud-check compliance-check <text>` | Check message for NISPOM §117.10 violations | file path accepted |
-| `fraud-check verify-offer <file>` | Analyze an offer letter for fraud signals | `--sender` |
-| `fraud-check explain` | Look up CFR citations for detected patterns | `--pattern`, `--category`, `--list` |
-| `fraud-check generate-report` | Generate DCSA/FBI incident report | `--company`, `--recruiter`, `--violation`, `--format`, `--save` |
-| `fraud-check report-fraud` | Show fraud reporting agencies | `--type`, `--ssn-given` |
-| `fraud-check demo` | Run built-in demo examples | — |
+| <sub>`fraud-check scan <file.eml>`</sub> | <sub>Analyze a `.eml` email file</sub> | <sub>—</sub> |
+| <sub>`fraud-check scan-text <body>`</sub> | <sub>Analyze raw email body</sub> | <sub>`--subject`, `--sender`</sub> |
+| <sub>`fraud-check scan-call <transcript>`</sub> | <sub>Analyze call transcript / interview notes</sub> | <sub>file path accepted</sub> |
+| <sub>`fraud-check scan-job <posting>`</sub> | <sub>Analyze a job posting</sub> | <sub>file path accepted</sub> |
+| <sub>`fraud-check scan-contact <message>`</sub> | <sub>Analyze FSO or recruiter contact</sub> | <sub>file path accepted</sub> |
+| <sub>`fraud-check scan-number <number>`</sub> | <sub>Check a phone number</sub> | <sub>`--company`, `--region`, `--ssn-requested`, `--pre-offer`</sub> |
+| <sub>`fraud-check verify-company <name>`</sub> | <sub>Look up company in verified registry</sub> | <sub>`--contacts`</sub> |
+| <sub>`fraud-check compliance-check <text>`</sub> | <sub>Check message for NISPOM §117.10 violations</sub> | <sub>file path accepted</sub> |
+| <sub>`fraud-check verify-offer <file>`</sub> | <sub>Analyze an offer letter for fraud signals</sub> | <sub>`--sender`</sub> |
+| <sub>`fraud-check explain`</sub> | <sub>Look up CFR citations for detected patterns</sub> | <sub>`--pattern`, `--category`, `--list`</sub> |
+| <sub>`fraud-check generate-report`</sub> | <sub>Generate DCSA/FBI incident report</sub> | <sub>`--company`, `--recruiter`, `--violation`, `--format`, `--save`</sub> |
+| <sub>`fraud-check report-fraud`</sub> | <sub>Show fraud reporting agencies</sub> | <sub>`--type`, `--ssn-given`</sub> |
+| <sub>`fraud-check demo`</sub> | <sub>Run built-in demo examples</sub> | <sub>—</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 </details>
 
@@ -507,50 +515,54 @@ The detector uses **147 weighted regex patterns** organized into **27 threat cat
 
 #### 🔴 High-Severity Patterns (0.70–1.00 weight)
 
-| Category | Pattern Count | Key Indicators | Example Trigger |
+| <sub>Category</sub> | <sub>Pattern Count</sub> | <sub>Key Indicators</sub> | <sub>Example Trigger</sub> |
 |----------|---------------|---|---|
-| **PII Harvest** | 5 | SSN request pre-offer, clearance level query, bank account info, passport request, DOB in application | "Please provide your Social Security Number for the clearance lookup" |
-| **DPRK Scheme** | 13 | Camera off, laptop forwarding, salary forwarding, concurrent jobs, identity concealment, resume submission timing | "FedEx the laptop to this address in Singapore" |
-| **Identity Theft** | 7 | Crypto redirect, SIM swap, bank credential capture, tax ID theft | "Verify your banking credentials to complete onboarding" |
-| **Offer Letter Fraud** | 5 | SSN field on offer, offer conditioned on SSN, free email domain, missing address | "Sign this offer letter and provide your SSN to finalize" |
-| **FSO Impersonation** | 8 | Fake DISS access claims, clearance suspension threat, DCSA cold contact, shared credentials demand | "Your clearance will be revoked unless you verify your SSN immediately" |
+| <sub>**PII Harvest**</sub> | <sub>5</sub> | <sub>SSN request pre-offer, clearance level query, bank account info, passport request, DOB in application</sub> | <sub>"Please provide your Social Security Number for the clearance lookup"</sub> |
+| <sub>**DPRK Scheme**</sub> | <sub>13</sub> | <sub>Camera off, laptop forwarding, salary forwarding, concurrent jobs, identity concealment, resume submission timing</sub> | <sub>"FedEx the laptop to this address in Singapore"</sub> |
+| <sub>**Identity Theft**</sub> | <sub>7</sub> | <sub>Crypto redirect, SIM swap, bank credential capture, tax ID theft</sub> | <sub>"Verify your banking credentials to complete onboarding"</sub> |
+| <sub>**Offer Letter Fraud**</sub> | <sub>5</sub> | <sub>SSN field on offer, offer conditioned on SSN, free email domain, missing address</sub> | <sub>"Sign this offer letter and provide your SSN to finalize"</sub> |
+| <sub>**FSO Impersonation**</sub> | <sub>8</sub> | <sub>Fake DISS access claims, clearance suspension threat, DCSA cold contact, shared credentials demand</sub> | <sub>"Your clearance will be revoked unless you verify your SSN immediately"</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 #### 🟠 Medium-Severity Patterns (0.40–0.70 weight)
 
-| Category | Pattern Count | Key Indicators | Example Trigger |
+| <sub>Category</sub> | <sub>Pattern Count</sub> | <sub>Key Indicators</sub> | <sub>Example Trigger</sub> |
 |----------|---------------|---|---|
-| **Fake Recruiter** | 8 | Bulk PII intake form, criminal history prescreen (pre-offer), competing offers probe, anonymous cleared client | "Confidential aerospace & defense client seeking TS/SCI contractor" |
-| **AI-Generated Content** | 4 | AI writing patterns, AI voice interview claims, deepfake warnings | "This video interview will use AI voice synthesis" |
-| **Fake Platform** | 6 | LinkedIn phishing pages, fake ClearanceJobs link, job board redirect | "Click here to apply on our secure portal: clr-jobs-apply.io" |
-| **Financial Scams** | 6 | Processing fees, clearance application fees, gift card payment, wire transfer | "Non-refundable processing fee: $200" |
-| **Background Scam** | 4 | FCRA timing violations, SSN collection timing, pre-offer background check | "We'll run your background check before making an offer" |
-| **Clearance Scam** | 5 | Guaranteed clearance, fast-track hiring, remote TS/SCI work | "We guarantee TS/SCI clearance within 2 weeks" |
+| <sub>**Fake Recruiter**</sub> | <sub>8</sub> | <sub>Bulk PII intake form, criminal history prescreen (pre-offer), competing offers probe, anonymous cleared client</sub> | <sub>"Confidential aerospace & defense client seeking TS/SCI contractor"</sub> |
+| <sub>**AI-Generated Content**</sub> | <sub>4</sub> | <sub>AI writing patterns, AI voice interview claims, deepfake warnings</sub> | <sub>"This video interview will use AI voice synthesis"</sub> |
+| <sub>**Fake Platform**</sub> | <sub>6</sub> | <sub>LinkedIn phishing pages, fake ClearanceJobs link, job board redirect</sub> | <sub>"Click here to apply on our secure portal: clr-jobs-apply.io"</sub> |
+| <sub>**Financial Scams**</sub> | <sub>6</sub> | <sub>Processing fees, clearance application fees, gift card payment, wire transfer</sub> | <sub>"Non-refundable processing fee: $200"</sub> |
+| <sub>**Background Scam**</sub> | <sub>4</sub> | <sub>FCRA timing violations, SSN collection timing, pre-offer background check</sub> | <sub>"We'll run your background check before making an offer"</sub> |
+| <sub>**Clearance Scam**</sub> | <sub>5</sub> | <sub>Guaranteed clearance, fast-track hiring, remote TS/SCI work</sub> | <sub>"We guarantee TS/SCI clearance within 2 weeks"</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 #### 🟡 Medium-Low Patterns (0.25–0.50 weight)
 
-| Category | Pattern Count | Key Indicators | Example Trigger |
+| <sub>Category</sub> | <sub>Pattern Count</sub> | <sub>Key Indicators</sub> | <sub>Example Trigger</sub> |
 |----------|---------------|---|---|
-| **Process Void/Ghost Employer** | 6 | "Resume on file" harvest, vague callback dates, indefinite job wait, no contact barrier, submit & disappear, no named contact | "We'll keep your resume on file for future opportunities" |
-| **Urgency/Pressure** | 4 | Immediate response demanded, scarcity claim, decision deadline | "You have 24 hours to accept this offer" |
-| **Communication Red Flags** | 5 | Personal email for government work, WhatsApp-only contact, offshore interview, no company name | "Contact me on WhatsApp: +855..." |
-| **Workforce Mapping** | 5 | Program history probe, clearance status mapping, competitor intel collection, salary intel gathering, employment timeline | "What programs have you worked on in the last 5 years?" |
-| **Vishing/AI Voice** | 7 | Fake interview call, no follow-up documentation, AI voice detection, camera-off requirement | "Join the video call but keep your camera off for security" |
+| <sub>**Process Void/Ghost Employer**</sub> | <sub>6</sub> | <sub>"Resume on file" harvest, vague callback dates, indefinite job wait, no contact barrier, submit & disappear, no named contact</sub> | <sub>"We'll keep your resume on file for future opportunities"</sub> |
+| <sub>**Urgency/Pressure**</sub> | <sub>4</sub> | <sub>Immediate response demanded, scarcity claim, decision deadline</sub> | <sub>"You have 24 hours to accept this offer"</sub> |
+| <sub>**Communication Red Flags**</sub> | <sub>5</sub> | <sub>Personal email for government work, WhatsApp-only contact, offshore interview, no company name</sub> | <sub>"Contact me on WhatsApp: +855..."</sub> |
+| <sub>**Workforce Mapping**</sub> | <sub>5</sub> | <sub>Program history probe, clearance status mapping, competitor intel collection, salary intel gathering, employment timeline</sub> | <sub>"What programs have you worked on in the last 5 years?"</sub> |
+| <sub>**Vishing/AI Voice**</sub> | <sub>7</sub> | <sub>Fake interview call, no follow-up documentation, AI voice detection, camera-off requirement</sub> | <sub>"Join the video call but keep your camera off for security"</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 #### 🟢 Lower-Severity Patterns (0.25–0.45 weight)
 
-| Category | Pattern Count | Key Indicators | Example Trigger |
+| <sub>Category</sub> | <sub>Pattern Count</sub> | <sub>Key Indicators</sub> | <sub>Example Trigger</sub> |
 |----------|---------------|---|---|
-| **Salary Bait** | 3 | Unrealistic salary ($300K+), work-from-home for TS/SCI, no-experience-required | "TS/SCI Remote: $400K + benefits, no experience needed" |
-| **Impersonation** | 4 | Domain mismatch, IC agency false claims, government impersonation | "From: NSA Recruitment Team <nsa-recruit@nsarecruit.com>" |
-| **Credential Harvest** | 3 | Fake login portal, government credentials phishing, DISS impersonation | "Visit https://diss-access.contractor.io to update your profile" |
-| **NISPOM Misrepresentation** | 5 | False claims about NISPOM procedures, eApp misrepresentation, timeline fabrication | "You can start before your background check completes" |
-| **Clearance Harvest** | 7 | History extraction, certification request, CAC/PIV request before offer | "Send us a copy of your TS/SCI certificate to verify clearance" |
-| **CAGE/FCL Evasion** | 4 | Non-FCL contractor recruiting, FCL compliance bypass, Facility Clearance false claims | "We're a cleared facility but don't have FCL on file yet" |
-| **Foreign Front** | 4 | Visa sponsorship scam, OPT extension guarantee, visa transfer promise | "We guarantee H-1B sponsorship within 30 days" |
-| **Social Engineering** | 7 | Pressure tactics, deadline urgency, competitive pressure, manipulation | "Everyone else accepted already — you'll miss out" |
-| **Pre-Screen Form** | 4 | Legal name + passport fields, clearance history multi-field form, anonymous client use | "Complete this pre-screen form with full legal name and passport number" |
-| **Mass Email Blast** | 4 | Bulk unsubscribe, click-here tracking, clearance status fishing, bulk TS/SCI blast | "Cleared professionals: click here to update your profile" |
-| **Quality Signals** | 4 | Excessive caps, multiple exclamations, generic greeting, premature congratulations | "CONGRATULATIONS!!! You've been pre-selected for our EXCLUSIVE TS/SCI opportunity!!!" |
+| <sub>**Salary Bait**</sub> | <sub>3</sub> | <sub>Unrealistic salary ($300K+), work-from-home for TS/SCI, no-experience-required</sub> | <sub>"TS/SCI Remote: $400K + benefits, no experience needed"</sub> |
+| <sub>**Impersonation**</sub> | <sub>4</sub> | <sub>Domain mismatch, IC agency false claims, government impersonation</sub> | <sub>"From: NSA Recruitment Team <nsa-recruit@nsarecruit.com>"</sub> |
+| <sub>**Credential Harvest**</sub> | <sub>3</sub> | <sub>Fake login portal, government credentials phishing, DISS impersonation</sub> | <sub>"Visit https://diss-access.contractor.io to update your profile"</sub> |
+| <sub>**NISPOM Misrepresentation**</sub> | <sub>5</sub> | <sub>False claims about NISPOM procedures, eApp misrepresentation, timeline fabrication</sub> | <sub>"You can start before your background check completes"</sub> |
+| <sub>**Clearance Harvest**</sub> | <sub>7</sub> | <sub>History extraction, certification request, CAC/PIV request before offer</sub> | <sub>"Send us a copy of your TS/SCI certificate to verify clearance"</sub> |
+| <sub>**CAGE/FCL Evasion**</sub> | <sub>4</sub> | <sub>Non-FCL contractor recruiting, FCL compliance bypass, Facility Clearance false claims</sub> | <sub>"We're a cleared facility but don't have FCL on file yet"</sub> |
+| <sub>**Foreign Front**</sub> | <sub>4</sub> | <sub>Visa sponsorship scam, OPT extension guarantee, visa transfer promise</sub> | <sub>"We guarantee H-1B sponsorship within 30 days"</sub> |
+| <sub>**Social Engineering**</sub> | <sub>7</sub> | <sub>Pressure tactics, deadline urgency, competitive pressure, manipulation</sub> | <sub>"Everyone else accepted already — you'll miss out"</sub> |
+| <sub>**Pre-Screen Form**</sub> | <sub>4</sub> | <sub>Legal name + passport fields, clearance history multi-field form, anonymous client use</sub> | <sub>"Complete this pre-screen form with full legal name and passport number"</sub> |
+| <sub>**Mass Email Blast**</sub> | <sub>4</sub> | <sub>Bulk unsubscribe, click-here tracking, clearance status fishing, bulk TS/SCI blast</sub> | <sub>"Cleared professionals: click here to update your profile"</sub> |
+| <sub>**Quality Signals**</sub> | <sub>4</sub> | <sub>Excessive caps, multiple exclamations, generic greeting, premature congratulations</sub> | <sub>"CONGRATULATIONS!!! You've been pre-selected for our EXCLUSIVE TS/SCI opportunity!!!"</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 ### How Patterns Feed the Scoring System
 
@@ -619,12 +631,13 @@ sequenceDiagram
 
 Risk scores are normalized to 0.0–1.0 with per-category and per-source caps to prevent a single signal from dominating:
 
-| Range | Verdict | Meaning |
+| <sub>Range</sub> | <sub>Verdict</sub> | <sub>Meaning</sub> |
 |-------|---------|---------|
-| 0.00 – 0.19 | ✅ **CLEAN** | No significant fraud indicators |
-| 0.20 – 0.44 | ⚠️ **SUSPICIOUS** | Some red flags — verify independently |
-| 0.45 – 0.69 | 🚨 **LIKELY FRAUD** | Strong fraud indicators — do not engage |
-| 0.70 – 1.00 | 🛑 **FRAUD** | High-confidence fraud — report immediately |
+| <sub>0.00 – 0.19</sub> | <sub>✅ **CLEAN**</sub> | <sub>No significant fraud indicators</sub> |
+| <sub>0.20 – 0.44</sub> | <sub>⚠️ **SUSPICIOUS**</sub> | <sub>Some red flags — verify independently</sub> |
+| <sub>0.45 – 0.69</sub> | <sub>🚨 **LIKELY FRAUD**</sub> | <sub>Strong fraud indicators — do not engage</sub> |
+| <sub>0.70 – 1.00</sub> | <sub>🛑 **FRAUD**</sub> | <sub>High-confidence fraud — report immediately</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 > [!TIP]
 > Use `fraud-check report-fraud --type <fraud_type>` to get the exact agencies to contact based on what was detected. Use `--ssn-given` if you already provided personal data for an immediate 11-step action checklist.
@@ -635,19 +648,20 @@ Risk scores are normalized to 0.0–1.0 with per-category and per-source caps to
 
 ## Technology Stack
 
-| Technology | Version | Purpose | Why Chosen |
+| <sub>Technology</sub> | <sub>Version</sub> | <sub>Purpose</sub> | <sub>Why Chosen</sub> |
 |------------|---------|---------|------------|
-| **Python** | 3.11+ | Runtime | Match target deployment environments in cleared DoD contractor workstations |
-| **Typer** | 0.12+ | CLI framework | Type-annotated commands with automatic `--help` generation |
-| **Rich** | 13.7+ | Terminal output | Color-coded verdict panels, tables, and progress — readable at a glance |
-| **phonenumbers** | 8.13+ | Phone validation | Google's libphonenumber binding — E.164 normalization, carrier, region, VoIP type |
-| **tldextract** | 5.1+ | Domain analysis | Accurate TLD/subdomain parsing needed for typosquat detection |
-| **python-whois** | 0.9+ | WHOIS lookup | Registration age and registrar for suspicious domain detection |
-| **spaCy** | 3.7+ | NLP pipeline | Named entity recognition and linguistic feature extraction |
-| **scikit-learn** | 1.4+ | ML scoring | TF-IDF + logistic regression for future trained classifier layer |
-| **rapidfuzz** | 3.0+ | Fuzzy matching | Levenshtein distance for contractor name impersonation detection |
-| **pydantic** | 2.6+ | Data validation | Typed result objects with strict validation at analysis boundaries |
-| **Textual** | 0.80+ | TUI framework | Reserved for future interactive terminal dashboard |
+| <sub>**Python**</sub> | <sub>3.11+</sub> | <sub>Runtime</sub> | <sub>Match target deployment environments in cleared DoD contractor workstations</sub> |
+| <sub>**Typer**</sub> | <sub>0.12+</sub> | <sub>CLI framework</sub> | <sub>Type-annotated commands with automatic `--help` generation</sub> |
+| <sub>**Rich**</sub> | <sub>13.7+</sub> | <sub>Terminal output</sub> | <sub>Color-coded verdict panels, tables, and progress — readable at a glance</sub> |
+| <sub>**phonenumbers**</sub> | <sub>8.13+</sub> | <sub>Phone validation</sub> | <sub>Google's libphonenumber binding — E.164 normalization, carrier, region, VoIP type</sub> |
+| <sub>**tldextract**</sub> | <sub>5.1+</sub> | <sub>Domain analysis</sub> | <sub>Accurate TLD/subdomain parsing needed for typosquat detection</sub> |
+| <sub>**python-whois**</sub> | <sub>0.9+</sub> | <sub>WHOIS lookup</sub> | <sub>Registration age and registrar for suspicious domain detection</sub> |
+| <sub>**spaCy**</sub> | <sub>3.7+</sub> | <sub>NLP pipeline</sub> | <sub>Named entity recognition and linguistic feature extraction</sub> |
+| <sub>**scikit-learn**</sub> | <sub>1.4+</sub> | <sub>ML scoring</sub> | <sub>TF-IDF + logistic regression for future trained classifier layer</sub> |
+| <sub>**rapidfuzz**</sub> | <sub>3.0+</sub> | <sub>Fuzzy matching</sub> | <sub>Levenshtein distance for contractor name impersonation detection</sub> |
+| <sub>**pydantic**</sub> | <sub>2.6+</sub> | <sub>Data validation</sub> | <sub>Typed result objects with strict validation at analysis boundaries</sub> |
+| <sub>**Textual**</sub> | <sub>0.80+</sub> | <sub>TUI framework</sub> | <sub>Reserved for future interactive terminal dashboard</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 <p align="right">(<a href="#top">back to top ↑</a>)</p>
 
@@ -773,12 +787,13 @@ gantt
 <details>
 <summary>📅 Roadmap Table</summary>
 
-| Phase | Goals | Target | Status |
+| <sub>Phase</sub> | <sub>Goals</sub> | <sub>Target</sub> | <sub>Status</sub> |
 |-------|-------|--------|--------|
-| **v0.1 — Core Engine** | Rule engine, domain/NLP analyzers, scoring, email parser | Q4 2025 | ✅ Complete |
-| **v0.2 — Extended Analysis** | Phone verification, contact model, job postings, contractor DB, reporting DB | Q1 2026 | ✅ Complete |
-| **v0.3 — ML Layer** | Labeled dataset, TF-IDF classifier, spaCy NER fine-tuning | Q2–Q3 2026 | 🟡 In Progress |
-| **v1.0 — Distribution** | Textual TUI, FastAPI REST endpoint, browser extension | Q4 2026 | ⭕ Planned |
+| <sub>**v0.1 — Core Engine**</sub> | <sub>Rule engine, domain/NLP analyzers, scoring, email parser</sub> | <sub>Q4 2025</sub> | <sub>✅ Complete</sub> |
+| <sub>**v0.2 — Extended Analysis**</sub> | <sub>Phone verification, contact model, job postings, contractor DB, reporting DB</sub> | <sub>Q1 2026</sub> | <sub>✅ Complete</sub> |
+| <sub>**v0.3 — ML Layer**</sub> | <sub>Labeled dataset, TF-IDF classifier, spaCy NER fine-tuning</sub> | <sub>Q2–Q3 2026</sub> | <sub>🟡 In Progress</sub> |
+| <sub>**v1.0 — Distribution**</sub> | <sub>Textual TUI, FastAPI REST endpoint, browser extension</sub> | <sub>Q4 2026</sub> | <sub>⭕ Planned</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 </details>
 
@@ -827,48 +842,53 @@ All detection patterns, response text, and process descriptions in this tool are
 
 ### Federal Regulations & Executive Orders
 
-| Document | Title | Relevance |
+| <sub>Document</sub> | <sub>Title</sub> | <sub>Relevance</sub> |
 |---|---|---|
-| **32 CFR Part 117** (NISPOM) | National Industrial Security Program Operating Manual — effective Feb 24, 2021 | §117.10(f): written offer + written acceptance required before investigation initiation; §117.10(a)(6): SSN submission to CSA for reciprocity; defines FSO responsibilities. [ecfr.gov](https://www.ecfr.gov/current/title-32/subtitle-B/chapter-I/subchapter-D/part-117) |
-| **EO 12968** | Access to Classified Information — Aug 2, 1995 | Establishes eligibility standards for access to classified information; baseline for SEAD 4 adjudicative guidelines. [govinfo.gov](https://www.govinfo.gov/content/pkg/WCPD-1995-08-07/pdf/WCPD-1995-08-07-Pg1365.pdf) |
-| **EO 13467** (as amended) | Reforming Processes Related to Suitability, Fitness, and Eligibility for Access to Classified National Security Information — Jun 30, 2008 | Foundation for Trusted Workforce 2.0; designates DNI as Security Executive Agent. [archives.gov](https://www.archives.gov/federal-register/codification/executive-order/13467.html) |
-| **HSPD-12** | Policy for a Common Identification Standard for Federal Employees and Contractors — Aug 27, 2004 | Mandates PIV/CAC credential issuance; implemented by FIPS 201-3; governs physical/logical access credentials — **distinct from** the security clearance investigation process. [dhs.gov](https://www.dhs.gov/homeland-security-presidential-directive-12) |
-| **5 CFR Part 731** | Suitability — OPM regulations | Governs federal employment suitability determinations (distinct from national security clearance adjudication). [ecfr.gov](https://www.ecfr.gov/current/title-5/chapter-I/subchapter-B/part-731) |
+| <sub>**32 CFR Part 117** (NISPOM)</sub> | <sub>National Industrial Security Program Operating Manual — effective Feb 24, 2021</sub> | <sub>§117.10(f): written offer + written acceptance required before investigation initiation; §117.10(a)(6): SSN submission to CSA for reciprocity; defines FSO responsibilities. [ecfr.gov](https://www.ecfr.gov/current/title-32/subtitle-B/chapter-I/subchapter-D/part-117)</sub> |
+| <sub>**EO 12968**</sub> | <sub>Access to Classified Information — Aug 2, 1995</sub> | <sub>Establishes eligibility standards for access to classified information; baseline for SEAD 4 adjudicative guidelines. [govinfo.gov](https://www.govinfo.gov/content/pkg/WCPD-1995-08-07/pdf/WCPD-1995-08-07-Pg1365.pdf)</sub> |
+| <sub>**EO 13467** (as amended)</sub> | <sub>Reforming Processes Related to Suitability, Fitness, and Eligibility for Access to Classified National Security Information — Jun 30, 2008</sub> | <sub>Foundation for Trusted Workforce 2.0; designates DNI as Security Executive Agent. [archives.gov](https://www.archives.gov/federal-register/codification/executive-order/13467.html)</sub> |
+| <sub>**HSPD-12**</sub> | <sub>Policy for a Common Identification Standard for Federal Employees and Contractors — Aug 27, 2004</sub> | <sub>Mandates PIV/CAC credential issuance; implemented by FIPS 201-3; governs physical/logical access credentials — **distinct from** the security clearance investigation process. [dhs.gov](https://www.dhs.gov/homeland-security-presidential-directive-12)</sub> |
+| <sub>**5 CFR Part 731**</sub> | <sub>Suitability — OPM regulations</sub> | <sub>Governs federal employment suitability determinations (distinct from national security clearance adjudication). [ecfr.gov](https://www.ecfr.gov/current/title-5/chapter-I/subchapter-B/part-731)</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### NIST Standards
 
-| Document | Title | Relevance |
+| <sub>Document</sub> | <sub>Title</sub> | <sub>Relevance</sub> |
 |---|---|---|
-| **FIPS 201-3** | Personal Identity Verification (PIV) of Federal Employees and Contractors — Jan 2022 | Governs CAC/PIV smart card credential issuance and identity proofing; implements HSPD-12. **Scope note:** governs PIV card issuance, not security clearance investigation. [csrc.nist.gov](https://csrc.nist.gov/pubs/fips/201-3/final) · [PDF](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.201-3.pdf) |
-| **NIST SP 800-73-5** | Interfaces for Personal Identity Verification — 2023 | Technical interface spec for PIV credentials (data model, card commands). [csrc.nist.gov](https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final) |
-| **NIST SP 800-76-2** | Biometric Specifications for Personal Identity Verification — 2013 | Biometric data format requirements for PIV cards. [csrc.nist.gov](https://csrc.nist.gov/pubs/sp/800/76/2/final) |
+| <sub>**FIPS 201-3**</sub> | <sub>Personal Identity Verification (PIV) of Federal Employees and Contractors — Jan 2022</sub> | <sub>Governs CAC/PIV smart card credential issuance and identity proofing; implements HSPD-12. **Scope note:** governs PIV card issuance, not security clearance investigation. [csrc.nist.gov](https://csrc.nist.gov/pubs/fips/201-3/final) · [PDF](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.201-3.pdf)</sub> |
+| <sub>**NIST SP 800-73-5**</sub> | <sub>Interfaces for Personal Identity Verification — 2023</sub> | <sub>Technical interface spec for PIV credentials (data model, card commands). [csrc.nist.gov](https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final)</sub> |
+| <sub>**NIST SP 800-76-2**</sub> | <sub>Biometric Specifications for Personal Identity Verification — 2013</sub> | <sub>Biometric data format requirements for PIV cards. [csrc.nist.gov](https://csrc.nist.gov/pubs/sp/800/76/2/final)</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### Intelligence Community Directives (ODNI/NCSC)
 
-| Document | Title | Relevance |
+| <sub>Document</sub> | <sub>Title</sub> | <sub>Relevance</sub> |
 |---|---|---|
-| **SEAD 4** | National Security Adjudicative Guidelines — Jun 8, 2017 | The 13 adjudicative guidelines applied by DCSA to determine clearance eligibility; source for what constitutes a disqualifying factor vs. mitigated concern. [dni.gov PDF](https://www.dni.gov/files/NCSC/documents/Regulations/SEAD-4-Adjudicative-Guidelines-U.pdf) |
-| **SEAD 7** | Reciprocity of Background Investigation and National Security Adjudicative Determinations — 2016 | Requires agencies to honor prior clearance determinations; underpins FSO-to-FSO transfer flow through DISS and the CVS reciprocity check. [dni.gov](https://www.dni.gov/index.php/ncsc-home) |
-| **ICD 704** | Personnel Security Standards and Procedures Governing Eligibility for Access to SCI — Jun 20, 2018 | SCI-specific personnel security standards; governs SSN and PII handling in the SCI access process. [dni.gov PDF](https://www.dni.gov/files/documents/ICD/ICD-704-Personnel-Security-Standards-and-Procedures-for-Access-to-SCI-2018-06-20.pdf) |
-| **ICD 705** | Sensitive Compartmented Information Facilities (SCIFs) — May 26, 2010 | SCIF construction and accreditation requirements; provides context for SCIF-specific language used in legitimate FSO contacts. [dni.gov PDF](https://www.dni.gov/files/documents/ICD/ICD-705-SCIFs.pdf) |
+| <sub>**SEAD 4**</sub> | <sub>National Security Adjudicative Guidelines — Jun 8, 2017</sub> | <sub>The 13 adjudicative guidelines applied by DCSA to determine clearance eligibility; source for what constitutes a disqualifying factor vs. mitigated concern. [dni.gov PDF](https://www.dni.gov/files/NCSC/documents/Regulations/SEAD-4-Adjudicative-Guidelines-U.pdf)</sub> |
+| <sub>**SEAD 7**</sub> | <sub>Reciprocity of Background Investigation and National Security Adjudicative Determinations — 2016</sub> | <sub>Requires agencies to honor prior clearance determinations; underpins FSO-to-FSO transfer flow through DISS and the CVS reciprocity check. [dni.gov](https://www.dni.gov/index.php/ncsc-home)</sub> |
+| <sub>**ICD 704**</sub> | <sub>Personnel Security Standards and Procedures Governing Eligibility for Access to SCI — Jun 20, 2018</sub> | <sub>SCI-specific personnel security standards; governs SSN and PII handling in the SCI access process. [dni.gov PDF](https://www.dni.gov/files/documents/ICD/ICD-704-Personnel-Security-Standards-and-Procedures-for-Access-to-SCI-2018-06-20.pdf)</sub> |
+| <sub>**ICD 705**</sub> | <sub>Sensitive Compartmented Information Facilities (SCIFs) — May 26, 2010</sub> | <sub>SCIF construction and accreditation requirements; provides context for SCIF-specific language used in legitimate FSO contacts. [dni.gov PDF](https://www.dni.gov/files/documents/ICD/ICD-705-SCIFs.pdf)</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### DoD Directives & Manuals
 
-| Document | Title | Relevance |
+| <sub>Document</sub> | <sub>Title</sub> | <sub>Relevance</sub> |
 |---|---|---|
-| **DoD Manual 5200.02** | Procedures for the DoD Personnel Security Program (PSP) — Apr 3, 2017 | Detailed procedural guidance for DoD security clearances; FSO responsibilities; SF-86 processing timelines. [esd.whs.mil PDF](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodm/520002m.PDF) |
-| **DoD Directive 5220.6** | Defense Industrial Personnel Security Clearance Review Program — Jan 2, 1992 (with changes) | Governs due process and appeal procedures for industrial contractor clearance reviews via DOHA. [esd.whs.mil PDF](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodd/522006p.pdf) |
+| <sub>**DoD Manual 5200.02**</sub> | <sub>Procedures for the DoD Personnel Security Program (PSP) — Apr 3, 2017</sub> | <sub>Detailed procedural guidance for DoD security clearances; FSO responsibilities; SF-86 processing timelines. [esd.whs.mil PDF](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodm/520002m.PDF)</sub> |
+| <sub>**DoD Directive 5220.6**</sub> | <sub>Defense Industrial Personnel Security Clearance Review Program — Jan 2, 1992 (with changes)</sub> | <sub>Governs due process and appeal procedures for industrial contractor clearance reviews via DOHA. [esd.whs.mil PDF](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodd/522006p.pdf)</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### DCSA Systems & Portals
 
-| System | URL | Purpose | Fraud Context |
+| <sub>System</sub> | <sub>URL</sub> | <sub>Purpose</sub> | <sub>Fraud Context</sub> |
 |---|---|---|---|
-| **DISS** — Defense Information System for Security | `dissportal.nbis.mil` (JVS) · `disscats.nbis.mil` (CATS/Appeals) | Enterprise system of record for DoD personnel security, suitability, and credentialing; replaced JPAS March 31, 2021 | FSO accesses via own credentialed login; any SSN in DISS is already on file from a prior investigation — FSO never cold-solicits SSN as a "lookup trigger" |
-| **NBIS eApp** | `eapp.nbis.mil` | Electronic SF-86/SF-85P application portal; replaced e-QIP; FSO-initiated, candidate completes | The **only** authorized channel for a candidate to submit SSN/PII for a background investigation |
-| **NBIS Subject Portal** | `sps.nbis.mil` | Candidate self-service: check investigation status, access prior completed investigations | |
-| **CVS** — Central Verification System | (within DISS) | FSO checks whether an existing adjudication or investigation already meets the current need before requesting a new one | |
-| **SWFT** — Secure Web Fingerprint Transmission | `swft.nbis.mil` | Electronic fingerprint submission to DCSA | Conducted in person at a cleared facility — never remotely |
-| **DOD SAFE** | `safe.apps.mil` | DISA secure file transfer for CUI/PII supporting documents; 7-day auto-delete; requires DoD CAC by sender | **Not** an SF-86 submission channel; any recruiter sending a "DOD SAFE" link for PII collection is a fraud indicator |
+| <sub>**DISS** — Defense Information System for Security</sub> | <sub>`dissportal.nbis.mil` (JVS) · `disscats.nbis.mil` (CATS/Appeals)</sub> | <sub>Enterprise system of record for DoD personnel security, suitability, and credentialing; replaced JPAS March 31, 2021</sub> | <sub>FSO accesses via own credentialed login; any SSN in DISS is already on file from a prior investigation — FSO never cold-solicits SSN as a "lookup trigger"</sub> |
+| <sub>**NBIS eApp**</sub> | <sub>`eapp.nbis.mil`</sub> | <sub>Electronic SF-86/SF-85P application portal; replaced e-QIP; FSO-initiated, candidate completes</sub> | <sub>The **only** authorized channel for a candidate to submit SSN/PII for a background investigation</sub> |
+| <sub>**NBIS Subject Portal**</sub> | <sub>`sps.nbis.mil`</sub> | <sub>Candidate self-service: check investigation status, access prior completed investigations</sub> | <sub></sub> |
+| <sub>**CVS** — Central Verification System</sub> | <sub>(within DISS)</sub> | <sub>FSO checks whether an existing adjudication or investigation already meets the current need before requesting a new one</sub> | <sub></sub> |
+| <sub>**SWFT** — Secure Web Fingerprint Transmission</sub> | <sub>`swft.nbis.mil`</sub> | <sub>Electronic fingerprint submission to DCSA</sub> | <sub>Conducted in person at a cleared facility — never remotely</sub> |
+| <sub>**DOD SAFE**</sub> | <sub>`safe.apps.mil`</sub> | <sub>DISA secure file transfer for CUI/PII supporting documents; 7-day auto-delete; requires DoD CAC by sender</sub> | <sub>**Not** an SF-86 submission channel; any recruiter sending a "DOD SAFE" link for PII collection is a fraud indicator</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> | <sub>—</sub> |
 
 **DCSA documentation:**
 - DISS: [dcsa.mil/Systems-Applications/Defense-Information-System-for-Security-DISS](https://www.dcsa.mil/Systems-Applications/Defense-Information-System-for-Security-DISS/)
@@ -878,20 +898,22 @@ All detection patterns, response text, and process descriptions in this tool are
 
 ### Threat Intelligence Advisories
 
-| Document | Issuer | Relevance |
+| <sub>Document</sub> | <sub>Issuer</sub> | <sub>Relevance</sub> |
 |---|---|---|
-| **Advisory AA23-129A** — North Korean State-Sponsored Cyber Actors / IT Worker Scheme | FBI, CISA, NSA — May 9, 2023 | Source for all 9 DPRK IT worker scheme detection indicators; documents camera-off, Telegram-only, fake identity, and financial redirection patterns. [cisa.gov](https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-129a) |
-| **DCSA Cleared Industry Fraud Advisories** | DCSA Counterintelligence | Ongoing advisories on fake FSO impersonation, fake clearance brokers, and resume-harvesting operations targeting cleared contractors. [dcsa.mil/MC/CI](https://www.dcsa.mil/MC/CI/) |
-| **FBI Private Industry Notifications** | FBI Cyber Division | Periodic PINs on social-engineering attacks targeting cleared personnel and cleared contractor recruitment fraud. [ic3.gov](https://www.ic3.gov) |
+| <sub>**Advisory AA23-129A** — North Korean State-Sponsored Cyber Actors / IT Worker Scheme</sub> | <sub>FBI, CISA, NSA — May 9, 2023</sub> | <sub>Source for all 9 DPRK IT worker scheme detection indicators; documents camera-off, Telegram-only, fake identity, and financial redirection patterns. [cisa.gov](https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-129a)</sub> |
+| <sub>**DCSA Cleared Industry Fraud Advisories**</sub> | <sub>DCSA Counterintelligence</sub> | <sub>Ongoing advisories on fake FSO impersonation, fake clearance brokers, and resume-harvesting operations targeting cleared contractors. [dcsa.mil/MC/CI](https://www.dcsa.mil/MC/CI/)</sub> |
+| <sub>**FBI Private Industry Notifications**</sub> | <sub>FBI Cyber Division</sub> | <sub>Periodic PINs on social-engineering attacks targeting cleared personnel and cleared contractor recruitment fraud. [ic3.gov](https://www.ic3.gov)</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 ### Supporting Consumer References
 
-| Source | URL | Used For |
+| <sub>Source</sub> | <sub>URL</sub> | <sub>Used For</sub> |
 |---|---|---|
-| **FTC IdentityTheft.gov** | [identitytheft.gov](https://www.identitytheft.gov) | Post-SSN-compromise recovery checklist and step-by-step remediation guidance |
-| **SSA CBSV** | [ssa.gov/cbsv](https://www.ssa.gov/cbsv/) | Confirmed that CBSV is a **commercial banking/mortgage tool** and is explicitly NOT used by DoD FSOs or DCSA for clearance verification |
-| **SAM.gov** | [sam.gov](https://sam.gov) | Verify contractor registration, CAGE code, and active DoD contract status for any company claiming to be a cleared facility |
-| **USAJobs.gov** | [usajobs.gov](https://www.usajobs.gov) | Authoritative source for federal and IC agency job postings; IC agencies (NSA, CIA, DIA, NRO, NGA) recruit exclusively through here |
+| <sub>**FTC IdentityTheft.gov**</sub> | <sub>[identitytheft.gov](https://www.identitytheft.gov)</sub> | <sub>Post-SSN-compromise recovery checklist and step-by-step remediation guidance</sub> |
+| <sub>**SSA CBSV**</sub> | <sub>[ssa.gov/cbsv](https://www.ssa.gov/cbsv/)</sub> | <sub>Confirmed that CBSV is a **commercial banking/mortgage tool** and is explicitly NOT used by DoD FSOs or DCSA for clearance verification</sub> |
+| <sub>**SAM.gov**</sub> | <sub>[sam.gov](https://sam.gov)</sub> | <sub>Verify contractor registration, CAGE code, and active DoD contract status for any company claiming to be a cleared facility</sub> |
+| <sub>**USAJobs.gov**</sub> | <sub>[usajobs.gov](https://www.usajobs.gov)</sub> | <sub>Authoritative source for federal and IC agency job postings; IC agencies (NSA, CIA, DIA, NRO, NGA) recruit exclusively through here</sub> |
+| <sub>Details</sub> | <sub>Expanded context is provided in the surrounding subsection; this compact table format is tuned for readability without horizontal scrolling.</sub> | <sub>—</sub> |
 
 <p align="right">(<a href="#top">back to top ↑</a>)</p>
 
