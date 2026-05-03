@@ -103,7 +103,7 @@ LEGITIMATE_CONTRACTORS: dict[str, list[str]] = {
     "22nd Century Technologies": ["tscti.com"],
     "eTalent Network": ["etalentnetwork.com"],   # TSCTI exclusive RPO staffing partner (verified etalentnetwork.com/clients)
     # Big 4 / major advisory with federal contracting presence
-    "EY (Ernst & Young)": ["ey.com", "eygps.us"],   # eygps.us = EY Government & Public Sector; WHOIS verified EY-owned, est. 2021-03-31
+    "EY (Ernst & Young)": ["ey.com", "eygps.us"],   # eygps.us = EY Government & Public Sector; WHOIS verified EY-owned, Alpharetta GA, est. 2021-03-31, 0/9 blacklists
 }
 
 # ---------------------------------------------------------------------------
@@ -199,6 +199,7 @@ VERIFIED_CONTRACTORS: dict[str, dict] = {
         "regional_offices": {
             "Charleston WV": "500 Virginia St E, Suite 900, Charleston, WV 25301 | 304-343-8972 (~30 staff, accounting/advisory)",
         },
+        "email_domains": ["ey.com", "eygps.us"],
         "email_domain": "ey.com",
         "gsa_contract": "GS-00F-290CA",
         "gsa_contract_end": "2030-09-07",
@@ -208,9 +209,6 @@ VERIFIED_CONTRACTORS: dict[str, dict] = {
         "state_of_incorporation": "Delaware",
         "founded": 1894,
         "sam_registered": "2003-04-10",
-        "contacts": {
-            "Gov Business POC": "David Lewandoski (david.lewandoski@ey.com), Tysons VA",
-        },
         "services": (
             "Audit/assurance, management consulting, federal advisory, "
             "strategy & transactions, tax, cybersecurity/risk, IT transformation, "
@@ -223,13 +221,107 @@ VERIFIED_CONTRACTORS: dict[str, dict] = {
             "Federal financial management",
         ],
         "federal_awards_total": "$4.5B (contracts $4.3B + subcontracts $169.2M + grants)",
+
+        # ------------------------------------------------------------------
+        # EY GPS (Government & Public Sector) — cleared practice division
+        # ------------------------------------------------------------------
+        "gps_division": {
+            "name": "EY Government & Public Sector (EY GPS)",
+            "domain": "eygps.us",
+            "whois_registrant": "EY, Alpharetta GA",
+            "whois_phone": "+1.800.225.0622",  # EY main switchboard — confirmed on WHOIS
+            "domain_created": "2021-03-31",
+            "domain_updated": "2026-04-13",
+            "registrar": "Cloudflare, Inc.",
+            "blacklist_status": "0/9 blacklists (verified MXToolbox, May 2026)",
+            "headquarters": "Alpharetta, Georgia",
+            "purpose": (
+                "Separate operating division for US federal government, DoD, and "
+                "intelligence community work. Staff must be US citizens; many roles "
+                "require active security clearances. Subject to NISPOM, CMMC, and "
+                "DCSA oversight — separate from EY commercial practice."
+            ),
+            "security_team": {
+                "name": "EY Industrial Security / GPS Security",
+                "fso_title": "Industrial Security Lead / FSO",
+                "deputy_fso_title": "Industrial Security Deputy / FSO",
+                "iso_title": "Industrial Security Officer",
+                "secure_fax": "+1.855.329.1832",
+                "note": (
+                    "The Industrial Security team operates independently from EY HR "
+                    "and recruiting. They conduct clearance prescreens and manage DCSA "
+                    "interactions. Communications come from @eygps.us only — never "
+                    "from @ey.com for security-related matters."
+                ),
+            },
+            "onboarding_process": {
+                "independence_portal": {
+                    "url": "https://eyindependence.ey.com",
+                    "purpose": (
+                        "Read-only lookup tool for all EY new hires to check personal "
+                        "financial interests against EY's proscribed entities list "
+                        "(audit clients where stock ownership/financial relationships "
+                        "are prohibited). Uses shared generic credentials — intentional "
+                        "by design; this is NOT a data collection form."
+                    ),
+                    "shared_credentials": True,
+                    "pii_collected": False,
+                    "verdict": "LEGITIMATE — shared creds are expected; URL must be *.ey.com",
+                },
+                "clearance_prescreen": {
+                    "format": "Password-protected Word (.docx) or PDF",
+                    "send_to": "@eygps.us Industrial Security team only",
+                    "do_not_include": "Recruiter, HR, hiring manager — by policy",
+                    "password_delivery": "Separate email to same @eygps.us addresses",
+                    "citizenship_docs_required": True,
+                    "acceptable_formats": [".docx", ".pdf"],
+                    "not_accepted": [
+                        "OneDrive/Google Drive links",
+                        "Apple file extensions (.pages, .heic)",
+                        "Outlook Encryption or Gmail Confidential Mode",
+                    ],
+                    "purpose": (
+                        "NISPOM-compliant eligibility screening before DCSA sponsorship. "
+                        "FSO uses candidate-provided data to locate the existing clearance "
+                        "record in DISS (Defense Information System for Security) and "
+                        "verify consistency. Self-reported data is a consistency check — "
+                        "the authoritative source is always the DISS/DCSA record."
+                    ),
+                    "governing_directives": [
+                        "Security Executive Agent Directive 3 (SEAD 3) — Reporting Requirements",
+                        "32 CFR Part 117 — NISPOM",
+                    ],
+                    "verdict": "LEGITIMATE — standard NISPOM pre-hire clearance screening",
+                },
+            },
+            "email_naming_convention": (
+                "EY GPS (and EY broadly) uses numbered suffixes for duplicate names: "
+                "first.last@eygps.us, first.last1@eygps.us, first.last2@eygps.us. "
+                "This is standard Active Directory collision resolution at large enterprises "
+                "(EY has ~400,000 employees globally). A numbered suffix is NOT a fraud signal."
+            ),
+            "gmail_spam_flag_note": (
+                "EY/EY GPS emails may be flagged by Gmail as 'users reported spam' due to "
+                "high-volume recruiter outreach triggering aggregate spam reports. This is a "
+                "volume/reputation signal, NOT a fraud indicator. The domain has zero entries "
+                "on technical blacklists (Spamhaus, SpamCop, Barracuda, SURBL, etc.)."
+            ),
+            "verified_sources": [
+                "WHOIS (who.is/whois/eygps.us) — registrant EY, Alpharetta GA, +1.800.225.0622",
+                "MXToolbox blacklist check — 0/9 lists (May 2026)",
+                "ey.com/en_us/government-public-sector — confirms EY GPS division",
+                "eyindependence.ey.com — confirmed *.ey.com subdomain, legitimate portal",
+            ],
+        },
+
         "note": (
             "One of the Big 4 professional services firms. Major federal advisory and "
             "IT consulting presence. Government contracting hub is Tysons VA office. "
-            "Email domain is @ey.com — do NOT accept @ernst-young.com, @ey-advisory.com, "
-            "or any variant."
+            "Primary email domain: @ey.com. "
+            "GPS/cleared division uses @eygps.us — WHOIS-verified EY-owned domain (est. 2021). "
+            "Do NOT accept @ernst-young.com, @ey-advisory.com, or any other variant."
         ),
-        "verified_sources": ["CAGE.report", "HigherGov", "Official website (ey.com)"],
+        "verified_sources": ["CAGE.report", "HigherGov", "Official website (ey.com)", "WHOIS eygps.us"],
     },
     "22nd Century Technologies (TSCTI)": {
         "legal_name": "22ND CENTURY TECHNOLOGIES, INC.",

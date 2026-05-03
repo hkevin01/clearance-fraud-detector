@@ -22,6 +22,7 @@
 
 ## Table of Contents
 
+- [FBI Ecosystem Fit (What Exists vs What This Adds)](#fbi-ecosystem-fit-what-exists-vs-what-this-adds)
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Architecture](#architecture)
@@ -42,6 +43,59 @@
 - [Contributing](#contributing)
 - [Authoritative References](#authoritative-references)
 - [License](#license)
+
+---
+
+## FBI Ecosystem Fit (What Exists vs What This Adds)
+
+This project is currently a prototype decision-support layer. It does not replace FBI or CJIS systems. It is designed to sit in front of existing reporting and law-enforcement workflows to improve triage speed, data quality, and victim guidance.
+
+### What Already Exists (Official FBI/CJIS Capabilities)
+
+| Existing FBI/CJIS System | What It Already Does Well | Current Operational Focus |
+|---|---|---|
+| IC3 (Internet Crime Complaint Center) | Public intake for cyber-enabled crime; analyzes and disseminates reports for investigative/intelligence use | Public reporting and trend visibility |
+| tips.fbi.gov (Electronic Tip Form) | Public federal crime and terrorism tip intake with Privacy Act framework | General public tip submission |
+| CJIS Division | National criminal justice data hub serving law enforcement, national security partners, and public services | Data infrastructure and partner services |
+| NCIC (via CJIS/LEEP) | Nationwide, near-real-time law-enforcement query/record system; officer-safety critical | Operational law-enforcement records access |
+| LEEP | Secure portal for law-enforcement/intelligence collaboration tools and case support services | Federated law-enforcement collaboration |
+| eGuardian (hosted on LEEP) | Suspicious Activity Reporting (SAR) sharing and fusion-center/JTTF workflow support | Counterterrorism information sharing |
+| UCR/NIBRS Program | National crime-statistics collection and publication | Statistical reporting and analysis |
+| CJIS Security Policy Resource Center | Security baseline (policy and controls) for handling criminal justice information | Compliance and security governance |
+
+### Where This Prototype Adds Value
+
+| Gap Before Official Intake | What Clearance Fraud Detector Adds | Who Benefits |
+|---|---|---|
+| Victims are unsure whether contact is legitimate before reporting | Structured pre-intake fraud scoring for clearance-themed scams (fake FSO/recruiter, PII harvesting, offer-letter abuse, DPRK IT-worker signals) | Public users, recruiters, cleared candidates |
+| Reports often arrive with incomplete context | Normalized evidence extraction (sender/domain, phone, indicators, rationale, recommended escalation package) | FBI/IC3 analysts, fusion/support staff |
+| Mixed quality of early triage across organizations | Repeatable rules + consistent severity banding to prioritize likely fraud faster | Federal/state/local partner workflows |
+| Users do not know where to report first | Built-in routing guidance to the right agency path (IC3/FBI/DCSA/FTC etc.) based on fraud pattern | Public users and security teams |
+| Public-facing language is hard to operationalize | Human-readable explanations translated into actionable checklist steps | Victims and help-desk/frontline teams |
+
+### Integration Concept (Engineering Into Existing Flow)
+
+| Current State | Near-Term Integration Step | Result |
+|---|---|---|
+| Standalone prototype analyzer | Package as API/microservice with JSON output schema for intake systems | Machine-ingestible pre-triage artifact |
+| Manual analyst review of free-form text | Add adapter to ingest portal/tip payloads and return risk profile + extracted entities | Faster first-pass triage |
+| No common pre-screen rubric across partner teams | Deploy deterministic ruleset profile for clearance-fraud category | More consistent triage decisions |
+| Separate public guidance and law-enforcement evidence prep | Generate dual output: victim-safe instructions + investigator-ready indicator summary | Better user outcomes and cleaner handoffs |
+| Ad hoc feedback loop | Add analyst feedback capture to tune weights/pattern precision over time | Continuous model/rule improvement |
+
+### Delivery Status (Now vs Next)
+
+| Workstream | Status Today | What This Tool Can Add Next |
+|---|---|---|
+| Pre-intake scam detection | Prototype complete (rule/NLP/domain/contact scoring) | Hardened service endpoints, authz, rate limits |
+| Public user guidance | Present | Context-aware guided reporting wizard |
+| Law-enforcement handoff quality | Partial | Standardized exchange format and partner integration adapters |
+| Compliance posture | Baseline references included | Formal CJIS-aligned security controls, audit logging, and ATO-ready documentation |
+| Multi-agency utility | Candidate capability | Role-specific views for public, recruiter/FSO, and federal analyst personas |
+
+**Bottom line:** FBI/CJIS systems already provide the authoritative intake, records, and investigative infrastructure. This project contributes an upstream fraud-specialized triage and evidence-normalization layer that can reduce noise and improve signal quality before cases enter those official channels.
+
+<p align="right">(<a href="#top">back to top ↑</a>)</p>
 
 ---
 
