@@ -73,6 +73,16 @@ This project is currently a prototype decision-support layer. It does not replac
 | Users do not know where to report first | Built-in routing guidance to the right agency path (IC3/FBI/DCSA/FTC etc.) based on fraud pattern | Public users and security teams |
 | Public-facing language is hard to operationalize | Human-readable explanations translated into actionable checklist steps | Victims and help-desk/frontline teams |
 
+### Capability Matrix (Requested Format)
+
+| Capability | Federal Agencies | This Tool | What It Is | Why It's Needed |
+|---|---|---|---|---|
+| Cyber-enabled fraud intake | FBI IC3, FBI tip line, partner LE agencies | Pre-intake scam screening and evidence packaging | A local analysis pass that scores suspected scam content and structures key indicators before formal submission | Improves report quality and reduces ambiguity so official intake receives clearer, actionable context |
+| Clearance-specific threat triage | FBI, DCSA, agency security offices, fusion/JTTF support workflows | Domain-specific detection for fake FSO/recruiter patterns | A ruleset tuned to cleared-workforce scam patterns (PII coercion, fake compliance asks, process misuse) | Generic spam tools miss clearance-process abuse; this closes that gap upstream |
+| Cross-agency reporting path guidance | IC3, FBI field offices/tips, DCSA counter-fraud, FTC and other civilian channels | Context-based recommended reporting path | A routing layer that suggests where to report first based on observed fraud pattern | Victims often delay or report to the wrong channel; routing improves speed and handoff quality |
+| Early triage consistency | Federal, state, local law-enforcement partner ecosystems | Deterministic scoring + severity bands | A repeatable framework to classify likely risk level and summarize top reasons | Reduces analyst-to-analyst variance in early assessment and supports prioritization |
+| Victim-safe operational guidance | Public-facing FBI safety ecosystem and agency help desks | Plain-language protective action checklist | Human-readable next steps for preserving evidence, limiting harm, and escalating safely | Converts technical findings into immediate actions users can follow without specialized training |
+
 ### Integration Concept (Engineering Into Existing Flow)
 
 | Current State | Near-Term Integration Step | Result |
